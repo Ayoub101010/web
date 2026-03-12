@@ -1,0 +1,363 @@
+/* ==================== LOGINPAGE.CSS - VERSION RESPONSIVE ==================== */
+
+.loginpage-wrapper {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  font-family: "Segoe UI", sans-serif;
+  overflow: hidden;
+  background-color: #f0f4f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.loginpage-wrapper html,
+.loginpage-wrapper body,
+.loginpage-wrapper #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f0f4f8;
+}
+
+/* Image de fond à droite */
+.loginpage-wrapper .background-image-right {
+  position: fixed;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  width: 50%;
+  max-width: 600px;
+  height: auto;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.loginpage-wrapper .background-image-right img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  opacity: 1;
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+/* Conteneur principal - RESPONSIVE */
+.loginpage-wrapper .container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  max-width: 850px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Partie gauche - RESPONSIVE */
+.loginpage-wrapper .left-panel {
+  flex: 1;
+  background-color: #2E7D32;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  position: relative;
+  min-height: 480px;
+}
+
+.loginpage-wrapper .left-panel h1.geodngr-text {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 3px;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.loginpage-wrapper .left-panel p {
+  font-style: italic;
+  margin-top: 10px;
+  margin-bottom: 80px;
+  color: #ccc;
+  position: absolute;
+}
+
+.loginpage-wrapper .left-panel button {
+  margin-top: 80px;
+  padding: 12px 24px;
+  width: 100%;
+  max-width: 240px;
+  font-size: 16px;
+  color: white;
+  background: linear-gradient(135deg, #F9A825, #2E7D32);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  z-index: 2;
+  position: relative;
+}
+
+.loginpage-wrapper .left-panel button:hover {
+  background: linear-gradient(135deg, #F57F17, #1B5E20);
+  transform: scale(1.05);
+}
+
+/* Partie droite - RESPONSIVE */
+.loginpage-wrapper .right-panel {
+  flex: 1;
+  padding: 30px;
+  position: relative;
+  background-color: #f3f6fc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.loginpage-wrapper .right-panel img.logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 120px;
+  height: auto;
+}
+
+/* Formulaire - RESPONSIVE */
+.loginpage-wrapper .form-group {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.loginpage-wrapper .form-group input {
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 2px solid #388E3C;
+  border-radius: 10px;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+.loginpage-wrapper .form-group input:focus {
+  border-color: #2E7D32;
+  outline: none;
+}
+
+.loginpage-wrapper .form-group input::placeholder {
+  color: #999;
+}
+
+/* Bouton Connexion - RESPONSIVE */
+.loginpage-wrapper .login-btn {
+  background: linear-gradient(to right, #2E7D32, #F9A825);
+  color: white;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+  transition: opacity 0.3s;
+}
+
+.loginpage-wrapper .login-btn:hover {
+  opacity: 0.9;
+}
+
+/* Texte complémentaire */
+.loginpage-wrapper .small-text {
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
+.loginpage-wrapper .forgot {
+  color: #d81b60;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: text-decoration 0.3s, color 0.3s;
+}
+
+.loginpage-wrapper .forgot:hover {
+  text-decoration: underline;
+  color: #ad1457;
+}
+
+/* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+/* Tablet (768px) - Stack vertical */
+@media (max-width: 768px) {
+  .loginpage-wrapper {
+    padding: 0.5rem;
+    align-items: center;
+  }
+
+  .loginpage-wrapper .container {
+    flex-direction: column;
+    max-width: 500px;
+    max-height: calc(100vh - 1rem);
+    min-height: 0;
+  }
+
+  .loginpage-wrapper .left-panel {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 20px;
+  }
+
+  .loginpage-wrapper .left-panel h1.geodngr-text {
+    position: static;
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .loginpage-wrapper .left-panel p {
+    position: static;
+    margin-bottom: 8px;
+  }
+
+  .loginpage-wrapper .left-panel button {
+    margin-top: 12px;
+  }
+
+  .loginpage-wrapper .right-panel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  /* Masquer background image sur tablet */
+  .loginpage-wrapper .background-image-right {
+    display: none;
+  }
+
+  .loginpage-wrapper .form-group input,
+  .loginpage-wrapper .login-btn {
+    max-width: 100%;
+  }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+  .loginpage-wrapper {
+    padding: 0.25rem;
+  }
+
+  .loginpage-wrapper .container {
+    max-width: 100%;
+    max-height: calc(100vh - 0.5rem);
+    border-radius: 12px;
+  }
+
+  .loginpage-wrapper .left-panel {
+    min-height: 0;
+    padding: 16px 15px;
+  }
+
+  .loginpage-wrapper .left-panel h1.geodngr-text {
+    font-size: 1.75rem;
+    letter-spacing: 2px;
+  }
+
+  .loginpage-wrapper .left-panel button {
+    font-size: 14px;
+    padding: 8px 20px;
+    margin-top: 8px;
+  }
+
+  .loginpage-wrapper .right-panel {
+    padding: 16px 15px;
+  }
+
+  .loginpage-wrapper .right-panel img.logo {
+    width: 80px;
+    margin-bottom: 12px;
+  }
+
+  .loginpage-wrapper .form-group {
+    margin-top: 10px;
+  }
+
+  .loginpage-wrapper .form-group input,
+  .loginpage-wrapper .login-btn {
+    font-size: 14px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .loginpage-wrapper .small-text {
+    font-size: 12px;
+  }
+
+  .loginpage-wrapper .forgot {
+    font-size: 13px;
+  }
+}
+
+/* Très petits mobiles (360px) */
+@media (max-width: 360px) {
+  .loginpage-wrapper .left-panel h1.geodngr-text {
+    font-size: 1.5rem;
+    letter-spacing: 1.5px;
+  }
+
+  .loginpage-wrapper .left-panel {
+    padding: 12px 10px;
+  }
+
+  .loginpage-wrapper .right-panel {
+    padding: 12px 10px;
+  }
+
+  .loginpage-wrapper .right-panel img.logo {
+    width: 60px;
+    margin-bottom: 8px;
+  }
+
+  .loginpage-wrapper .form-group {
+    margin-top: 6px;
+  }
+
+  .loginpage-wrapper .form-group input {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .loginpage-wrapper .login-btn {
+    padding: 8px;
+  }
+}

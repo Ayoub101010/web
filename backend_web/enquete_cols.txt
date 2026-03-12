@@ -1,0 +1,11 @@
+                                             Table "public.enquete_polygone"
+       Column        |            Type             | Collation | Nullable |                   Default                    
+---------------------+-----------------------------+-----------+----------+----------------------------------------------
+ id                  | integer                     |           | not null | nextval('enquete_polygone_id_seq'::regclass)
+ superficie_en_ha    | double precision            |           |          | 
+ communes_rurales_id | integer                     |           |          | 
+ geom                | geometry(MultiPolygon,4326) |           |          | 
+Indexes:
+    "enquete_polygone_pkey" PRIMARY KEY, btree (id)
+    "idx_enquete_polygone_geom" gist (geom)
+

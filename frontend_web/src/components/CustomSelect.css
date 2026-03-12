@@ -1,0 +1,119 @@
+/* ── CustomSelect : dropdown entièrement contrôlé, sans curseur natif ── */
+
+.cselect-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+.cselect-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  background: white;
+  cursor: default;
+  min-height: 38px;
+  transition: border-color 0.15s;
+}
+
+.cselect-open .cselect-display {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.18);
+}
+
+.cselect-disabled .cselect-display {
+  background: #f7fafc;
+  color: #a0aec0;
+  cursor: default;
+}
+
+.cselect-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-size: inherit;
+}
+
+.cselect-arrow {
+  font-size: 0.62rem;
+  color: #718096;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.cselect-open .cselect-arrow {
+  transform: rotate(180deg);
+}
+
+.cselect-dropdown {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 9999;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cselect-option {
+  padding: 9px 14px;
+  font-size: 0.88rem;
+  cursor: default;
+  color: #2d3748;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cselect-option:active {
+  background: #ebf8ff;
+}
+
+.cselect-option-selected {
+  background: #3182ce;
+  color: white;
+  font-weight: 600;
+}
+
+.cselect-option-selected:active {
+  background: #2b6cb0;
+}
+
+/* ── Variantes de taille ── */
+
+/* Utilisé dans GestionUserPage filtres (full width dans btn-group) */
+.cselect-fullwidth {
+  width: 100%;
+}
+
+/* Utilisé dans les formulaires (edit-form) */
+.cselect-form {
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.cselect-form .cselect-display {
+  padding: 0.7rem;
+  border-radius: 6px;
+  border-color: #cbd5e0;
+  min-height: 42px;
+}

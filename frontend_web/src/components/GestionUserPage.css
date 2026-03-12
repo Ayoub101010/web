@@ -1,0 +1,635 @@
+.gestion-user-wrapper {
+  padding: 2rem;
+  background: #f7f9fc;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.gestion-header {
+  text-align: center;
+  background: linear-gradient(to right, #004080, #3498db);
+  color: white;
+  padding: 30px 20px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.gestion-header img {
+  width: 40px;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.gestion-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.gestion-header p {
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+/* Stats Cards */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.stat-label {
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2b6cb0;
+}
+
+/* Controls */
+.gestion-controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  margin-right: 1rem;
+  font-size: 0.95rem;
+  max-width: 400px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.role-filter-select {
+  max-width: 200px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(45deg, #dc3545, #6c757d);
+}
+
+.btn.green {
+  background: #38a169;
+}
+
+.btn.blue {
+  background: #3182ce;
+}
+
+/* Table */
+.users-table-container {
+  background: white;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 700px;
+}
+
+thead {
+  background: #324967;
+  color: white;
+}
+
+thead th {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.1);
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  display: inline-block;
+}
+
+.badge.green {
+  background-color: #38a169;
+}
+
+.badge.red {
+  background-color: #e53e3e;
+}
+
+.badge.gray {
+  background-color: #a0aec0;
+}
+
+.badge.blue {
+  background-color: #3182ce;
+}
+
+.badge.orange {
+  background-color: #dd6b20;
+}
+
+.badge.purple {
+  background-color: #6b46c1;
+}
+
+.actions button {
+  margin: 0 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.voir {
+  background-color: #00bcd4;
+  color: white;
+}
+
+.modifier {
+  background-color: #ffc107;
+  color: white;
+}
+
+.supprimer {
+  background-color: #f44336;
+  color: white;
+}
+
+/* ================== FORMULAIRE DANS LES MODALES ================== */
+
+.edit-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+  margin-top: 0.5rem;
+}
+
+.edit-form label {
+  grid-column: span 2;
+  font-weight: 600;
+  color: #1f2937;
+  /* texte foncé sur fond blanc */
+  font-size: 0.9rem;
+}
+
+.edit-form input,
+.edit-form select {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+.edit-form button {
+  grid-column: span 2;
+  margin-top: 0.5rem;
+}
+
+/* Responsive */
+
+/* ==================== LAYOUT CARD MOBILE ==================== */
+
+/* Mode card mobile (masqué par défaut) */
+.users-cards {
+  display: none;
+  padding: 1rem;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.user-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.user-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #3182ce;
+}
+
+.user-card-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.user-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.user-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-card-field-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.user-card-field-value {
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.user-card-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.user-card-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.user-card-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+/* Tablet (1024px) - NOUVEAU */
+@media (max-width: 1024px) {
+  .gestion-user-wrapper {
+    padding: 1.5rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet (768px) - AMÉLIORATION */
+@media (max-width: 768px) {
+  .gestion-user-wrapper {
+    padding: 1rem;
+  }
+
+  .gestion-header {
+    padding: 20px 15px;
+  }
+
+  .gestion-header h1 {
+    font-size: 20px;
+  }
+
+  .gestion-header p {
+    font-size: 13px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .gestion-controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .search-input {
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-group {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .role-filter-select {
+    max-width: 100%;
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  /* SWITCH: Masquer table, afficher cards */
+  .users-table-container {
+    display: none;
+  }
+
+  .users-cards {
+    display: flex;
+  }
+
+  /* Make the modal fit smaller screens */
+  .modal-shell {
+    width: 95%;
+    max-height: 95vh;
+    padding: 0.5rem;
+    /* Reduce outer padding */
+  }
+
+  /* Stack form inputs vertically */
+  .edit-form {
+    grid-template-columns: 1fr !important;
+    /* Force 1 column */
+    gap: 0.8rem;
+  }
+
+  /* Make inputs span the full width */
+  .edit-form label,
+  .edit-form input,
+  .edit-form select,
+  .edit-form button,
+  .edit-form .multi-select-container {
+    grid-column: span 1 !important;
+  }
+
+  /* Adjust internal padding */
+  .modal-inner-body {
+    padding: 1rem;
+  }
+
+  /* Adjust checkboxes container */
+  .multi-select-container {
+    max-height: 120px;
+    /* Limit height of checkbox areas on mobile */
+  }
+}
+
+/* ================== NOUVEAU STYLE DE MODALES ================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* carte avec bordure dégradée */
+.modal-shell {
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  padding: 1.1rem;
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  /* Limits height to 90% of screen */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-shell.modal-shell-wide {
+  max-width: 640px;
+}
+
+
+/* Ensure the inner container fills the shell */
+.modal-inner {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  /* Added */
+  flex-direction: column;
+  /* Added */
+  max-height: 100%;
+  /* Added */
+}
+
+/* Fix the Header to stay at the top */
+.modal-inner-header {
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  padding: 0.9rem 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  /* Prevents header from shrinking */
+}
+
+.modal-inner-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* Allow the Body to Scroll */
+.modal-inner-body {
+  padding: 1.4rem 1.8rem 1.8rem;
+  overflow-y: auto;
+  /* Enables vertical scrolling */
+  max-height: 100%;
+  /* Fills remaining space */
+}
+
+.modal-inner-body p {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.modal-view-content p,
+.modal-delete-content p {
+  margin-bottom: 0.7rem;
+}
+
+/* boutons dans modale */
+.modal-inner .btn {
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+}
+
+.modal-close-btn {
+  margin-top: 1.2rem;
+  width: 100%;
+}
+
+.delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+/* ================== MULTI-SELECT & CHECKBOXES ================== */
+
+.multi-select-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  border: 1px solid #cbd5e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.checkbox-item:hover {
+  background: #edf2f7;
+  border-color: #a0aec0;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.stat-card.orange {
+  border-bottom: 4px solid #ed8936;
+}
+
+.stat-card.purple {
+  border-bottom: 4px solid #9f7aea;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile (480px) - CARDS RESPONSIVE */
+@media (max-width: 480px) {
+  .gestion-user-wrapper {
+    padding: 0.75rem;
+  }
+
+  .gestion-header {
+    padding: 15px 10px;
+    border-radius: 10px;
+  }
+
+  .gestion-header h1 {
+    font-size: 18px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .user-card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .user-card-actions {
+    flex-direction: column;
+  }
+
+  .user-card-actions button {
+    width: 100%;
+  }
+}

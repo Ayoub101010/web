@@ -1,0 +1,13 @@
+amenage_ou_non_amenage
+commune_id
+entreprise
+financement
+geom
+id
+projet
+superficie_digitalisee
+superficie_estimee_lors_des_enquetes_ha
+travaux_debut
+travaux_fin
+type
+type_de_realisation

@@ -1,0 +1,256 @@
+/* administrative-boundaries-styles.css */
+/* Styles pour les limites administratives et leurs contrôles */
+
+/* ============================================
+   PANNEAU DE CONTRÔLE DES LIMITES
+   ============================================ */
+
+.legend-section.boundaries-section {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.legend-section .section-title {
+  user-select: none;
+}
+
+.boundary-control {
+  transition: all 0.2s ease;
+}
+
+.boundary-control:hover {
+  background: #e9ecef !important;
+  transform: translateX(2px);
+}
+
+.boundary-control label {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.boundary-control input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #E74C3C;
+}
+
+.boundary-control input[type="checkbox"]:checked {
+  accent-color: #E74C3C;
+}
+
+/* Indicateurs de couleur pour chaque niveau */
+.region-control input[type="checkbox"]:checked {
+  accent-color: #E74C3C;
+}
+
+.prefecture-control input[type="checkbox"]:checked {
+  accent-color: #3498DB;
+}
+
+.commune-control input[type="checkbox"]:checked {
+  accent-color: #2ECC71;
+}
+
+/* ============================================
+   STYLES DES COUCHES SUR LA CARTE
+   ============================================ */
+
+/* Régions - Rouge vif épais */
+.leaflet-interactive[stroke="#E74C3C"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Préfectures - Bleu vif moyen */
+.leaflet-interactive[stroke="#3498DB"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Communes - Vert vif fin */
+.leaflet-interactive[stroke="#2ECC71"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Tablet landscape (1024px) */
+@media (max-width: 1024px) {
+  /* min-width à 0 : la largeur est calculée par les inline styles JS */
+  .legend-section.boundaries-section {
+    min-width: 0 !important;
+  }
+
+  .boundary-control label {
+    font-size: 12px !important;
+  }
+}
+
+/* Tablet portrait (768px) */
+@media (max-width: 768px) {
+  /* top/right/padding retirés — gérés par les inline styles JS */
+  .legend-section.boundaries-section {
+    min-width: 0 !important;
+  }
+
+  .boundary-control {
+    margin: 4px 0 !important;
+    padding: 5px !important;
+  }
+
+  .boundary-control label {
+    font-size: 11px !important;
+  }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+  .legend-section.boundaries-section {
+    min-width: 0 !important;
+  }
+
+  .boundary-control {
+    margin: 3px 0 !important;
+    padding: 4px !important;
+  }
+
+  .boundary-control label {
+    font-size: 11px !important;
+  }
+
+  .boundary-control input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-section.boundaries-section {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   ÉTATS DE CHARGEMENT
+   ============================================ */
+
+.boundaries-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #7f8c8d;
+  font-size: 13px;
+}
+
+.boundaries-loading::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid #ecf0f1;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ACCESSIBILITÉ
+   ============================================ */
+
+.boundary-control label:focus-within {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.boundary-control input[type="checkbox"]:focus {
+  outline: none;
+}
+
+/* ============================================
+   ICÔNES FONT AWESOME
+   ============================================ */
+
+.section-title i.fa-map-marked-alt {
+  font-size: 14px;
+}
+
+/* ============================================
+   Z-INDEX MANAGEMENT
+   ============================================ */
+
+.legend-section.boundaries-section {
+  z-index: 1000 !important;
+}
+
+.leaflet-popup {
+  z-index: 1001 !important;
+}
+
+/* ============================================
+   LABELS DES LIMITES ADMINISTRATIVES
+   ============================================ */
+
+/* Base commune pour tous les labels */
+.boundary-label {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+  padding: 4px 8px !important;
+  font-weight: bold !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
+  border-radius: 4px !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* Labels régions - Rouge vif */
+.boundary-label-region {
+  color: #E74C3C !important;
+  font-size: 16px !important;
+  border-left: 3px solid #E74C3C !important;
+}
+
+/* Labels préfectures - Bleu vif */
+.boundary-label-prefecture {
+  color: #3498DB !important;
+  font-size: 13px !important;
+  border-left: 3px solid #3498DB !important;
+}
+
+/* Labels communes - Vert vif */
+.boundary-label-commune {
+  color: #2ECC71 !important;
+  font-size: 11px !important;
+  border-left: 3px solid #2ECC71 !important;
+}
+
+/* Désactiver le triangle du tooltip */
+.boundary-label:before,
+.boundary-label:after {
+  display: none !important;
+}

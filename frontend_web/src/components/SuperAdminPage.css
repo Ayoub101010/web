@@ -1,0 +1,1417 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Header - RESPONSIVE */
+.superadmin-wrapper .header {
+  background: linear-gradient(135deg, #2980b9 0%, #36022e 100%);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.superadmin-wrapper .logo {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px;
+  /* largeur du rectangle */
+  height: 50px;
+  /* hauteur du rectangle */
+  background: #36022e;
+  /* violet foncé */
+  border: 2px solid #4a0343;
+  /* bordure légèrement plus claire */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(54, 2, 46, 0.7);
+  z-index: 10;
+}
+
+.superadmin-wrapper .logo img {
+  max-width: 120px;
+  max-height: 120px;
+  display: block;
+  object-fit: contain;
+  margin-top: 75px;
+  margin-left: 15px;
+}
+
+.superadmin-wrapper .nav-menu {
+  display: flex;
+  gap: 2rem;
+  margin-left: 170px;
+  flex-wrap: wrap;
+}
+
+.superadmin-wrapper .nav-item {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.superadmin-wrapper .nav-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.superadmin-wrapper .nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.superadmin-wrapper .user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.superadmin-wrapper .profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #3498db, #36022e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.superadmin-wrapper .user-info h4 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.superadmin-wrapper .user-info span {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.superadmin-wrapper .profile-dropdown {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background-color: white;
+  color: #04395c;
+  font: bold;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 180px;
+  font-size: 14px;
+}
+
+.superadmin-wrapper .profile-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.superadmin-wrapper .profile-dropdown li {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.superadmin-wrapper .profile-dropdown li:hover {
+  background-color: #566aa8;
+}
+
+/* Main Layout */
+.superadmin-wrapper .main-container {
+  height: calc(100vh - 80px);
+  font-size: 0.75rem;
+}
+
+/* Sidebar */
+.superadmin-wrapper .sidebar {
+  width: 260px;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.superadmin-wrapper .filter-section {
+  margin-bottom: 2rem;
+}
+
+.superadmin-wrapper .filter-title {
+  color: #36022e;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.superadmin-wrapper .filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.superadmin-wrapper .filter-label {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.superadmin-wrapper .filter-select,
+.superadmin-wrapper .filter-checkbox-group {
+  width: 100%;
+}
+
+.superadmin-wrapper .sidebar>.filter-section .filter-select {
+  padding: 0.75rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.superadmin-wrapper .filter-select:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
+}
+
+.superadmin-wrapper .checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.superadmin-wrapper .checkbox-item:hover {
+  background: #f8f9fa;
+}
+
+.superadmin-wrapper .checkbox-item input {
+  margin-right: 0.75rem;
+  transform: scale(1.1);
+}
+
+/* Map Container */
+.superadmin-wrapper .map-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+.superadmin-wrapper .map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.superadmin-wrapper .map-title {
+  color: #36022e;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.superadmin-wrapper .map-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.superadmin-wrapper .map-stats {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.9rem;
+}
+
+.superadmin-wrapper .stat-item {
+  text-align: center;
+}
+
+.superadmin-wrapper .stat-number {
+  font-weight: bold;
+  color: #2980b9;
+  font-size: 1.1rem;
+}
+
+.superadmin-wrapper .stat-label {
+  color: #666;
+}
+
+/* Bouton d'export */
+.superadmin-wrapper .export-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.superadmin-wrapper .export-btn {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(41, 128, 185, 0.3);
+}
+
+.superadmin-wrapper .export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(41, 128, 185, 0.4);
+}
+
+.superadmin-wrapper .export-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 8px;
+  overflow: hidden;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+}
+
+.superadmin-wrapper .export-dropdown.show .export-dropdown-content {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.superadmin-wrapper .export-option {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.85rem;
+}
+
+.superadmin-wrapper .export-option:hover {
+  background-color: #f8f9fa;
+}
+
+.superadmin-wrapper .export-option i {
+  color: #2980b9;
+}
+
+.superadmin-wrapper #map {
+  flex: 1;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e8ed;
+}
+
+/* Right Panel */
+.superadmin-wrapper .right-panel {
+  width: 330px;
+  background: white;
+  padding: 1.5rem;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.superadmin-wrapper .analytics-section {
+  margin-bottom: 2rem;
+}
+
+.superadmin-wrapper .analytics-title {
+  color: #36022e;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.superadmin-wrapper .time-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.superadmin-wrapper .time-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e1e8ed;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.superadmin-wrapper .time-btn.active {
+  background: #2980b9;
+  color: white;
+  border-color: #2980b9;
+}
+
+.superadmin-wrapper .chart-container {
+  height: 160px;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.superadmin-wrapper .data-summary {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.superadmin-wrapper .data-summary h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.superadmin-wrapper .summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.superadmin-wrapper .summary-item:last-child {
+  border-bottom: none;
+}
+
+/* Loading overlay pour l'export */
+.superadmin-wrapper .export-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.superadmin-wrapper .export-loading {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  color: #36022e;
+  font-weight: 500;
+}
+
+.superadmin-wrapper .export-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2980b9;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .superadmin-wrapper .sidebar {
+    width: 240px;
+  }
+
+  .superadmin-wrapper .right-panel {
+    width: 280px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .superadmin-wrapper .sidebar {
+    width: 210px;
+    padding: 1rem;
+  }
+
+  .superadmin-wrapper .right-panel {
+    width: 240px;
+    padding: 1rem;
+  }
+}
+
+/* SUPPRIMÉ: Breakpoint 992px déplacé vers 1024px pour éviter conflits */
+
+/* ==================== BREAKPOINTS RESPONSIVE (gérés plus bas dans le fichier) ==================== */
+/* Les breakpoints 1024px/768px/480px sont définis à la fin du fichier pour éviter les conflits */
+
+/* Tablet Portrait (768px) - Contenu uniquement (layout géré par ≤1024px) */
+@media (max-width: 768px) {
+  .superadmin-wrapper .filter-select {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+
+  .superadmin-wrapper .chart-container {
+    height: 140px;
+  }
+
+  .superadmin-wrapper .profile-pic {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Mobile (480px) - Contenu uniquement (layout géré par ≤1024px) */
+@media (max-width: 480px) {
+  .superadmin-wrapper .filter-select {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+  }
+
+  .superadmin-wrapper .chart-container {
+    height: 120px;
+  }
+
+  .superadmin-wrapper .filter-title {
+    font-size: 0.9rem;
+  }
+
+  .superadmin-wrapper .stat-number {
+    font-size: 14px;
+  }
+
+  .superadmin-wrapper .stat-label {
+    font-size: 9px;
+  }
+
+  .superadmin-wrapper .profile-pic {
+    width: 30px;
+    height: 30px;
+    font-size: 0.78rem;
+  }
+}
+
+/* Loading Animation */
+.superadmin-wrapper .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: #2980b9;
+}
+
+.superadmin-wrapper .spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2980b9;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.superadmin-wrapper .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(1.5px);
+  /* ✅ flou ajouté ici */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.superadmin-wrapper .modal-content {
+  background: linear-gradient(135deg, #2980b9 0%, #36022e 100%);
+  padding: 40px;
+  /* un peu plus grand */
+  border-radius: 12px;
+  text-align: center;
+  width: 380px;
+  /* augmenté */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.superadmin-wrapper .modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 25px;
+}
+
+.superadmin-wrapper .modal-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.superadmin-wrapper .modal-buttons button:first-child {
+  background: linear-gradient(45deg, #28a745, #218838);
+  /* vert */
+}
+
+.superadmin-wrapper .modal-buttons button:last-child {
+  background: linear-gradient(45deg, #dc3545, #6c757d);
+  /* rouge → gris */
+}
+
+.superadmin-wrapper .modal-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.modal-form .form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.modal-label {
+  display: block;
+  color: white;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.superadmin-wrapper {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.superadmin-wrapper .main-container {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* Sidebar avec scroll interne seulement */
+.sidebar {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+
+/* Panel de droite avec scroll interne seulement */
+.right-panel {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+
+/* Zone de carte sans scroll */
+.map-container {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Scrollbars personnalisés pour les sidebars */
+.sidebar::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.right-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.right-panel::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Header de carte optimisé */
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 14px;
+  height: 50px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile: header compact sans titre */
+.map-header-mobile {
+  height: 42px;
+  padding: 6px 12px;
+  justify-content: center;
+  gap: 16px;
+}
+
+.map-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  /* ✅ Titre plus compact */
+}
+
+.map-stats {
+  display: flex;
+  gap: 15px;
+  /* ✅ Réduit l'espacement */
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 16px;
+  /* ✅ Plus petit */
+  font-weight: bold;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  /* ✅ Plus petit */
+  opacity: 0.9;
+}
+
+.export-btn {
+  padding: 6px 12px;
+  /* ✅ Bouton plus compact */
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.superadmin-wrapper .view-container {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f5f7fa;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+}
+
+/* Force le respect du style inline */
+.superadmin-wrapper .main-container[style*="none"] {
+  display: none !important;
+}
+
+.superadmin-wrapper .main-container[style*="flex"] {
+  display: flex !important;
+}
+
+/* ==================== MOBILE UX: DRAWER + BOTTOM SHEET + FAB ==================== */
+
+/* Overlay sombre quand drawer ouvert */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── En-tête de chaque drawer (bouton fermer) ── */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #e2e8f0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1e3c72;
+  flex-shrink: 0;
+}
+
+.drawer-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.drawer-close-btn:hover {
+  background: #f1f5f9;
+  color: #e53e3e;
+}
+
+/* ── Bouton "Appliquer les filtres" en bas du drawer ── */
+.apply-filters-btn {
+  display: none;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── FABs flottants sur la carte ── */
+.mobile-fabs {
+  display: none;
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+  gap: 12px;
+  z-index: 500;
+}
+
+.fab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab-filters {
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  color: white;
+}
+
+.fab-stats {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  color: white;
+}
+
+/* État actif (panneau ouvert) — fond légèrement plus sombre + icône × */
+.fab.fab-active {
+  filter: brightness(0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Barre de navigation inférieure (mobile) ── */
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 6px 0;
+  position: relative;
+  border-right: 1px solid #e2e8f0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mobile-bottom-nav-btn:last-child {
+  border-right: none;
+}
+
+.mobile-bottom-nav-btn i {
+  font-size: 1.1rem;
+  transition: color 0.2s;
+}
+
+.mobile-bottom-nav-btn.active {
+  color: #1e3c72;
+  background: rgba(30, 60, 114, 0.06);
+}
+
+.mobile-bottom-nav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 3px;
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  border-radius: 0 0 3px 3px;
+}
+
+/* ── Drag handle (bottom sheet) ── */
+.sheet-handle {
+  display: none;
+  width: 40px;
+  height: 4px;
+  background: #cbd5e0;
+  border-radius: 2px;
+  margin: 10px auto 4px;
+  flex-shrink: 0;
+}
+
+/* ==================== RESPONSIVE MOBILE (≤1024px) ==================== */
+
+@media (max-width: 1024px) {
+
+  /* ── Wrapper global ── */
+  .superadmin-wrapper {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── View containers (dashboard, users, data-tracking) ── */
+  .superadmin-wrapper .view-container {
+    top: 56px;
+  }
+
+  /* ── Header compact horizontal ── */
+  .superadmin-wrapper .header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    padding: 0 0.75rem;
+    height: 56px;
+    min-height: 56px;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .superadmin-wrapper .logo {
+    display: none;
+  }
+
+  .superadmin-wrapper .nav-menu {
+    flex: 1;
+    margin-left: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0.25rem;
+    justify-content: flex-start;
+  }
+
+  .superadmin-wrapper .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .superadmin-wrapper .nav-item {
+    flex-shrink: 0;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .superadmin-wrapper .user-info {
+    display: none;
+  }
+
+  .superadmin-wrapper .user-profile {
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  /* ── Bouton satellite Leaflet : réactif au toucher, z-index au-dessus de l'overlay ── */
+  .leaflet-control-layers-toggle,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out {
+    touch-action: manipulation !important; /* Supprime le délai 300ms du tap */
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  /* ── Barre de navigation inférieure ── */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+    z-index: 1200;
+  }
+
+  /* FABs désactivés (remplacés par bottom-nav) */
+  .mobile-fabs {
+    display: none !important;
+  }
+
+  /* ── Main container : hauteur tenant compte du bottom nav ── */
+  .superadmin-wrapper .main-container {
+    position: relative !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: calc(100vh - 56px - 52px) !important;
+    overflow: hidden !important;
+  }
+
+  /* ── Carte : occupe tout l'espace ── */
+  .superadmin-wrapper .map-container {
+    position: relative !important;
+    flex: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: unset !important;
+    order: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ── Sidebar drawer — plein écran sur mobile ── */
+  .superadmin-wrapper .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: calc(100vh - 52px) !important;
+    height: calc(100dvh - 52px) !important; /* S'arrête au-dessus de la bottom-nav */
+    z-index: 1050 !important;     /* Au-dessus des contrôles Leaflet (z-index: 1000) */
+    background: #ffffff !important;
+    box-shadow: none !important;
+    transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    pointer-events: none !important; /* Ne bloque pas les clics quand hors écran */
+  }
+
+  .superadmin-wrapper .sidebar.sidebar-open {
+    left: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Header du drawer — sticky en haut */
+  .superadmin-wrapper .sidebar .drawer-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    flex-shrink: 0;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  /* Zone scrollable des filtres */
+  .superadmin-wrapper .sidebar .filter-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.35rem;
+    flex-shrink: 0;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* Titre de section filtre compact */
+  .superadmin-wrapper .sidebar .filter-title {
+    margin-bottom: 0.4rem !important;
+    font-size: 0.82rem !important;
+    padding: 0.35rem 0;
+  }
+
+  /* Checkbox items compacts */
+  .superadmin-wrapper .sidebar .checkbox-item {
+    padding: 0.3rem 0.25rem !important;
+    margin: 0 !important;
+    font-size: 0.82rem;
+  }
+
+  .superadmin-wrapper .sidebar .checkbox-item input {
+    transform: scale(1) !important;
+    margin-right: 0.5rem !important;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* GeographicFilter compact */
+  .superadmin-wrapper .sidebar .filter-group {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .superadmin-wrapper .sidebar .filter-label {
+    font-size: 0.78rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Empêcher le shrink sur toutes les sections directes */
+  .superadmin-wrapper .sidebar > * {
+    flex-shrink: 0;
+  }
+
+  /* Bouton Appliquer au bas du drawer plein-écran */
+  .apply-filters-btn {
+    z-index: 2;
+    margin: 0 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  /* ── Bottom-sheet Stats (glisse depuis le bas, fixed) ── */
+  .superadmin-wrapper .right-panel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: -80vh !important;
+    width: 100% !important;
+    height: 80vh !important;      /* Augmenté: 70→80vh pour plus d'espace */
+    z-index: 1050 !important;     /* Au-dessus des contrôles Leaflet (z-index: 1000) */
+    background: #ffffff !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -6px 32px rgba(0, 0, 0, 0.22) !important;
+    transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    pointer-events: none !important; /* Ne bloque pas les clics quand hors écran */
+  }
+
+  .superadmin-wrapper .right-panel.stats-open {
+    bottom: 52px !important;
+    pointer-events: auto !important;
+  }
+
+  /* Header du bottom-sheet — sticky */
+  .superadmin-wrapper .right-panel .drawer-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    flex-shrink: 0;
+  }
+
+  /* Charts dans le bottom-sheet — espacement réduit */
+  .superadmin-wrapper .right-panel > *:not(.sheet-handle):not(.drawer-header) {
+    padding: 0.4rem 0.75rem;
+    flex-shrink: 0;
+  }
+
+  /* Séparateur visuel entre les charts */
+  .superadmin-wrapper .right-panel > *:not(.sheet-handle):not(.drawer-header) + *:not(.sheet-handle):not(.drawer-header) {
+    border-top: 1px solid #f0f0f0;
+  }
+
+  /* Chart containers dans le bottom-sheet */
+  .superadmin-wrapper .right-panel .chart-container {
+    height: 140px !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;  /* Empêche le canvas de déborder */
+  }
+
+  /* InfrastructureDonut.css applique canvas { height: auto !important }
+     Ce qui fait déborder le canvas et superpose les graphiques.
+     On annule ici avec une règle plus spécifique + !important. */
+  .superadmin-wrapper .right-panel .chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* BarChart utilise .bar-chart-canvas (pas .chart-container) */
+  .superadmin-wrapper .right-panel .bar-chart-canvas {
+    height: 130px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .superadmin-wrapper .right-panel .bar-chart-canvas canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Empêcher les wrappers de déborder horizontalement */
+  .superadmin-wrapper .right-panel .analytics-section,
+  .superadmin-wrapper .right-panel .donut-wrapper,
+  .superadmin-wrapper .right-panel .bar-chart-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Titres des sections analytics */
+  .superadmin-wrapper .right-panel .analytics-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Réduire les titres h2 dans le bottom-sheet stats */
+  .superadmin-wrapper .right-panel .donut-wrapper h2,
+  .superadmin-wrapper .right-panel h2 {
+    font-size: 0.82rem !important;
+    margin: 0 0 0.25rem 0 !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Réduire les marges des sections analytics */
+  .superadmin-wrapper .right-panel .analytics-section {
+    margin-bottom: 0.25rem !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* ── Drag handle visible ── */
+  .sheet-handle {
+    display: block;
+  }
+
+  /* ── Overlay visible ── (au-dessus de Leaflet 1000, sous les panneaux 1050) */
+  .mobile-overlay {
+    display: block;
+    z-index: 1030;
+  }
+
+  /* ── FABs : au-dessus de la légende (z-index: 1000) ET des contrôles Leaflet ── */
+  .mobile-fabs {
+    display: flex;
+    position: fixed;
+    bottom: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  /* ── Bouton Appliquer — sticky au bas du drawer (qui s'arrête déjà au-dessus de la bottom-nav) ── */
+  .apply-filters-btn {
+    display: flex;
+    position: sticky;
+    bottom: 0;           /* Le drawer s'arrête à 52px du bas, pas besoin de décalage */
+    background: white;
+    padding: 0.75rem 0 0.75rem;
+    margin-top: auto;    /* Pousse vers le bas si contenu court */
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+/* ── Tablette portrait (768px) ── */
+@media (max-width: 768px) {
+  .superadmin-wrapper .header {
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .superadmin-wrapper .main-container {
+    height: calc(100vh - 52px - 52px) !important;
+  }
+
+  .superadmin-wrapper .view-container {
+    top: 52px;
+  }
+
+  .superadmin-wrapper .sidebar {
+    width: 100% !important;
+    left: -100% !important;
+  }
+
+  .superadmin-wrapper .sidebar.sidebar-open {
+    left: 0 !important;
+  }
+
+  .superadmin-wrapper .right-panel {
+    height: 72vh !important;
+    bottom: -72vh !important;
+  }
+
+  .fab {
+    padding: 11px 18px;
+    font-size: 0.85rem;
+  }
+
+  .mobile-fabs {
+    bottom: 120px;
+  }
+}
+
+/* ── Mobile portrait (480px) ── */
+@media (max-width: 480px) {
+  .superadmin-wrapper .header {
+    height: 48px;
+    min-height: 48px;
+    padding: 0 0.5rem;
+  }
+
+  .superadmin-wrapper .main-container {
+    height: calc(100vh - 48px - 52px) !important;
+  }
+
+  .superadmin-wrapper .view-container {
+    top: 48px;
+  }
+
+  /* Nav : icônes seules, texte masqué */
+  .superadmin-wrapper .nav-item span {
+    display: none;
+  }
+
+  .superadmin-wrapper .nav-item {
+    padding: 0.4rem;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+    font-size: 0.95rem;
+    gap: 0;
+  }
+
+  .superadmin-wrapper .nav-item i {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .mobile-fabs {
+    bottom: 110px;
+    gap: 10px;
+  }
+
+  /* FABs ronds (icône seulement) */
+  .fab span {
+    display: none;
+  }
+
+  .fab {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+
+  .fab i {
+    font-size: 1.15rem;
+  }
+
+  .superadmin-wrapper .right-panel {
+    height: 75vh !important;
+    bottom: -75vh !important;
+  }
+}

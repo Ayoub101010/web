@@ -1,0 +1,1300 @@
+.dashboard {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dashboard-header-blue {
+  background: linear-gradient(to right, #1e3c72, #2a77d1);
+  padding: 2.5rem 0;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header-blue .icon {
+  font-size: 3rem;
+  margin-bottom: 0.8rem;
+}
+
+.dashboard-header-blue .title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dashboard-header-blue .subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-top: 0.4rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Contrôles */
+.dashboard-controls {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filters-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.actions-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 300px;
+  padding: 0.75rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.dashboard .filter-select {
+  padding: 0.75rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-width: 180px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.dashboard .btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.dashboard .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-green {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+}
+
+.btn-blue {
+  background: linear-gradient(45deg, #007bff, #17a2b8);
+  color: white;
+}
+
+.btn-purple {
+  background: linear-gradient(45deg, #6f42c1, #e83e8c);
+  color: white;
+}
+
+.btn-orange {
+  background: linear-gradient(45deg, #fd7e14, #ffc107);
+  color: white;
+}
+
+/* Statistiques */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a77d1 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card h3 {
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.stats-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* ==================== TABLEAU AVEC SCROLL INTERNE ==================== */
+
+.dashboard-table {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  max-width: 100%;
+  position: relative;
+  max-height: 600px;
+  /* Hauteur fixe du tableau */
+  overflow: auto;
+  /* Scroll horizontal ET vertical interne */
+}
+
+.dashboard-table table {
+  width: auto;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.dashboard-table thead th {
+  background: #324967 !important;
+  color: white !important;
+}
+
+.dashboard-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  /* Headers sticky */
+  top: 0;
+  /* Restent en haut lors du scroll vertical */
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* En-têtes des colonnes infrastructures - centrées */
+.dashboard-table th:nth-child(n + 6) {
+  text-align: center;
+}
+
+.dashboard-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+/* Alternating row colors and group separators are applied via inline td styles in DashBoard.js */
+.dashboard-table tbody tr:hover td {
+  filter: brightness(0.96);
+}
+
+/* ==================== LARGEURS FIXES POUR COLONNES ==================== */
+
+/* Code Piste - Limiter la largeur */
+.code-piste {
+  max-width: 250px;
+  min-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+}
+
+/* Colonne Date */
+.dashboard-table td:nth-child(2),
+.dashboard-table th:nth-child(2) {
+  min-width: 100px;
+  white-space: nowrap;
+}
+
+/* Colonne Utilisateur */
+.dashboard-table td:nth-child(3),
+.dashboard-table th:nth-child(3) {
+  min-width: 150px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Colonne Localité */
+.dashboard-table td:nth-child(4),
+.dashboard-table th:nth-child(4) {
+  min-width: 120px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Colonne Km */
+.kilometrage-cell {
+  font-weight: 500;
+  color: #495057;
+  white-space: nowrap;
+  min-width: 100px;
+  text-align: right;
+  padding-right: 1rem;
+}
+
+/* Colonnes Infrastructures - Petites et centrées */
+.infra-count {
+  text-align: center;
+  min-width: 60px;
+  max-width: 80px;
+  padding: 0.75rem 0.5rem;
+  font-weight: 500;
+}
+
+/* ==================== SCROLL BAR STYLING ==================== */
+
+/* Scrollbar verticale ET horizontale */
+.dashboard-table::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.dashboard-table::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dashboard-table::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.dashboard-table::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Coin entre les 2 scrollbars */
+.dashboard-table::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* Pour Firefox */
+.dashboard-table {
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f1f1f1;
+}
+
+/* ==================== INDICATEURS DE SCROLL ==================== */
+
+/* Ombre à droite pour indiquer scroll horizontal */
+.dashboard-table::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 5;
+}
+
+.dashboard-table.has-horizontal-scroll::after {
+  opacity: 1;
+}
+
+/* Ombre en bas pour indiquer scroll vertical */
+.dashboard-table::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 5;
+}
+
+.dashboard-table.has-vertical-scroll::before {
+  opacity: 1;
+}
+
+/* ==================== STYLES SPÉCIAUX ==================== */
+
+/* Styles spéciaux pour les cellules */
+.non-assigne {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Badges de type */
+.type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+
+.type-piste {
+  background-color: #6f42c1;
+}
+
+/* Boutons d'actions */
+.actions-cell {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 0.25rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-voir {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-modifier {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-supprimer {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-action:hover {
+  opacity: 0.8;
+}
+
+/* Pagination */
+.dashboard-pagination {
+  text-align: center;
+  padding: 1rem;
+  color: #6c757d;
+}
+
+/* ==================== LAYOUT CARD MOBILE ==================== */
+
+/* Mode card mobile (masqué par défaut) */
+.dashboard-cards {
+  display: none;
+  padding: 1rem;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.dashboard-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.card-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-field-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.card-field-value {
+  font-size: 0.9rem;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.card-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* ==================== LOADING ET ERROR ==================== */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1400px) {
+  .code-piste {
+    max-width: 200px;
+    min-width: 150px;
+  }
+
+  .dashboard-table {
+    font-size: 0.85rem;
+    max-height: 500px;
+    /* Hauteur réduite sur écrans moyens */
+  }
+
+  .infra-count {
+    min-width: 50px;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dashboard-table {
+    font-size: 0.8rem;
+    max-height: 450px;
+    /* Hauteur encore plus réduite */
+  }
+
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+  }
+}
+
+/* Tablet (1024px) - NOUVEAU */
+@media (max-width: 1024px) {
+  .dashboard {
+    padding: 1.5rem;
+  }
+
+  .dashboard-table {
+    max-height: 500px;
+    font-size: 0.85rem;
+  }
+
+  .code-piste {
+    max-width: 200px;
+    min-width: 150px;
+  }
+}
+
+/* Tablet (768px) - SWITCH TABLE→CARDS */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header-blue .title {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-controls {
+    padding: 1rem;
+  }
+
+  .filters-row,
+  .actions-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-input,
+  .dashboard .filter-select,
+  .dashboard .btn {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  /* SWITCH: Masquer table, afficher cards */
+  .dashboard-table {
+    display: none;
+  }
+
+  .dashboard-cards {
+    display: flex;
+  }
+}
+
+/* Mobile (480px) - CARDS RESPONSIVE */
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.75rem;
+  }
+
+  .dashboard-header-blue {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+
+  .dashboard-header-blue .title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-header-blue .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-card {
+    padding: 1rem;
+  }
+
+  .stats-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .stats-card p {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-cards {
+    padding: 0.5rem;
+  }
+
+  .dashboard-card {
+    padding: 0.75rem;
+  }
+
+  .card-body {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions button {
+    width: 100%;
+  }
+}
+
+/* ===== Suivi Données ===== */
+
+/* =========================================================
+   SUIVI DES DONNEES - HEADER
+   (indépendant du style GestionUserPage)
+   ========================================================= */
+
+.data-tracking-header {
+  background: linear-gradient(to right, #1e3c72, #2a77d1);
+  color: #ffffff;
+  padding: 2.5rem 1rem;
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.data-tracking-header-icon {
+  font-size: 3rem;
+  margin-bottom: 0.8rem;
+}
+
+.data-tracking-header-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.data-tracking-header-subtitle {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* =========================================================
+   SUIVI DES DONNEES - LAYOUT GENERAL
+   ========================================================= */
+
+.data-tracking-layout {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  align-items: stretch;
+}
+
+/* Colonne de gauche */
+.data-tracking-sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.data-tracking-sidebar h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.data-tracking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.data-tracking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.data-tracking-item+.data-tracking-item {
+  margin-top: 0.2rem;
+}
+
+.data-tracking-item:hover {
+  background: #f1f3f5;
+}
+
+.data-tracking-item.active {
+  background: #009460;
+  color: #ffffff;
+}
+
+.data-tracking-item.active .data-tracking-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.data-tracking-count {
+  min-width: 34px;
+  text-align: center;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  padding: 0.1rem 0.35rem;
+  background: #e9ecef;
+}
+
+/* =========================================================
+   SUIVI DES DONNEES - PARTIE DROITE (FILTRES + TABLEAU)
+   ========================================================= */
+
+.data-tracking-table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Carte filtres + boutons export */
+.data-tracking-table-container .dashboard-controls {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+}
+
+/* Conteneur du tableau */
+.data-tracking-table {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  max-height: calc(100vh - 320px);
+  /* Scrollbars toujours visibles */
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f1f1f1;
+}
+
+.data-tracking-table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.data-tracking-table::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.data-tracking-table::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+.data-tracking-table::-webkit-scrollbar-thumb:hover {
+  background: #4f5bd5;
+}
+.data-tracking-table::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* Table interne — min-width: max-content force le scroll horizontal */
+.data-tracking-table table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  table-layout: auto;
+}
+
+/* En-tête du tableau (style bleu foncé type GestionUser) */
+.data-tracking-table thead {
+  background: #324967;
+  color: #ffffff;
+}
+
+.data-tracking-table th {
+  background: #324967 !important;
+  color: #ffffff;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.data-tracking-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.data-tracking-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* Corps du tableau */
+.data-tracking-table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.data-tracking-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.data-tracking-table tbody tr:hover {
+  background-color: #eef2f7;
+}
+
+.data-tracking-input {
+  max-width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.8rem;
+  background-color: #ffffff;
+}
+
+.data-tracking-input:focus {
+  outline: none;
+  border-color: #009460;
+  box-shadow: 0 0 0 2px rgba(0, 148, 96, 0.2);
+}
+
+.data-tracking-input.read-only {
+  background-color: #f1f3f5;
+  color: #495057;
+  cursor: not-allowed;
+  font-weight: bold;
+  border-style: dashed;
+}
+
+.data-tracking-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0 1rem;
+  font-size: 0.9rem;
+}
+
+.data-tracking-pagination .btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  margin: 0 0.5rem;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SUIVI DES DONNÉES — RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+  /* ── Dégagement pour la bottom-nav ── */
+  .dashboard {
+    padding-bottom: 64px !important;
+  }
+
+  /* ── Header compact ── */
+  .data-tracking-header {
+    padding: 1.25rem 1rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 1rem !important;
+    flex-direction: row !important;
+    gap: 0.75rem !important;
+    text-align: left !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .data-tracking-header-icon {
+    font-size: 1.75rem !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .data-tracking-header-title {
+    font-size: 1.2rem !important;
+  }
+
+  .data-tracking-header-subtitle {
+    font-size: 0.8rem !important;
+    margin-top: 0.2rem !important;
+  }
+
+  /* ── Layout : colonne sur mobile ── */
+  .data-tracking-layout {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  /* ── Sidebar → Pills horizontales scrollables ── */
+  .data-tracking-sidebar {
+    width: 100% !important;
+    padding: 0.75rem 0.5rem !important;
+    border-radius: 10px !important;
+  }
+
+  .data-tracking-sidebar h3 {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    padding: 0 0.5rem;
+    letter-spacing: 0.05em;
+    color: #666;
+  }
+
+  .data-tracking-list {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 0.4rem !important;
+    padding: 0 0.25rem 0.4rem !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .data-tracking-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .data-tracking-item {
+    flex-shrink: 0 !important;
+    flex-direction: row !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 999px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    background: #fff !important;
+    font-size: 0.78rem !important;
+    gap: 0.4rem !important;
+    white-space: nowrap;
+    margin-top: 0 !important;
+  }
+
+  .data-tracking-item.active {
+    background: #009460 !important;
+    border-color: #009460 !important;
+    color: #fff !important;
+  }
+
+  .data-tracking-count {
+    font-size: 0.72rem !important;
+    min-width: 22px !important;
+    padding: 0 4px !important;
+  }
+
+  /* ── Contrôles : empilés ── */
+  .data-tracking-table-container .dashboard-controls {
+    padding: 0.75rem !important;
+  }
+
+  .data-tracking-table-container .filters-row {
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  /* Search responsive */
+  .dt-search-wrapper { width: 100% !important; }
+  .dt-search-input {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Boutons toolbar empilés */
+  .dt-toolbar-btn {
+    flex: 1 1 auto !important;
+    min-width: calc(50% - 0.25rem) !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.5rem !important;
+  }
+
+  .data-tracking-table-container .actions-row {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    justify-content: flex-start !important;
+    margin-top: 0 !important;
+  }
+
+  .data-tracking-table-container .actions-row .btn {
+    flex: 1 1 auto !important;
+    min-width: calc(50% - 0.25rem) !important;
+    text-align: center !important;
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.82rem !important;
+    margin-left: 0 !important;
+  }
+
+  /* ── Tableau : hauteur adaptée ── */
+  .data-tracking-table {
+    max-height: calc(100vh - 56px - 52px - 260px) !important;
+    border-radius: 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .data-tracking-table th,
+  .data-tracking-table td {
+    padding: 0.45rem 0.6rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .data-tracking-input {
+    font-size: 0.78rem !important;
+    padding: 2px 4px !important;
+  }
+
+  /* ── Pagination compacte ── */
+  .data-tracking-pagination {
+    padding: 0.5rem 0 0.75rem !important;
+    font-size: 0.82rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .data-tracking-pagination .btn {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .pagination-info {
+    margin: 0 0.25rem !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .dashboard {
+    padding: 0.75rem !important;
+    padding-bottom: 64px !important;
+  }
+
+  .data-tracking-header {
+    padding: 1rem !important;
+    border-radius: 10px !important;
+  }
+
+  .data-tracking-header-title {
+    font-size: 1.05rem !important;
+  }
+
+  .data-tracking-header-subtitle {
+    display: none; /* Gagne de la place sur petit écran */
+  }
+
+  /* DataTracking : garder le tableau (pas de switch cards) */
+  .data-tracking-table {
+    display: block !important;
+    max-height: calc(100vh - 52px - 52px - 230px) !important;
+  }
+
+  /* Pagination tablette : icônes seulement */
+  .data-tracking-pagination .pagination-btn-text {
+    display: none !important;
+  }
+
+  .data-tracking-pagination .btn {
+    padding: 0.4rem 0.9rem !important;
+    font-size: 1rem !important;
+    min-width: 42px !important;
+    text-align: center !important;
+  }
+
+  .pagination-info {
+    margin: 0 0.25rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .data-tracking-table-container .actions-row .btn {
+    min-width: calc(50% - 0.25rem) !important;
+    font-size: 0.78rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .dashboard {
+    padding: 0.5rem !important;
+    padding-bottom: 64px !important;
+  }
+
+  .data-tracking-header {
+    border-radius: 8px !important;
+    gap: 0.5rem !important;
+  }
+
+  .data-tracking-header-icon {
+    font-size: 1.4rem !important;
+  }
+
+  .data-tracking-header-title {
+    font-size: 0.95rem !important;
+  }
+
+  /* Boutons empilés sur très petits écrans */
+  .data-tracking-table-container .actions-row .btn {
+    min-width: 100% !important;
+  }
+
+  /* Pagination mobile : icônes seulement */
+  .data-tracking-pagination .pagination-btn-text {
+    display: none !important;
+  }
+
+  .data-tracking-pagination .btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 1rem !important;
+    min-width: 40px !important;
+    text-align: center !important;
+  }
+
+  .pagination-info {
+    margin: 0 0.15rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .data-tracking-table {
+    max-height: calc(100vh - 48px - 52px - 220px) !important;
+  }
+
+  .data-tracking-item {
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.6rem !important;
+  }
+}
+
+/* ══ CustomDatePicker — calendrier sans curseur natif ══════════════════════ */
+.custom-date-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.8rem;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  min-width: 110px;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+.custom-date-empty .custom-date-display { color: #adb5bd; }
+.custom-date-display {
+  flex: 1;
+  font-size: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.custom-date-icon { font-size: 0.75rem; color: #6c757d; flex-shrink: 0; }
+
+.custom-calendar {
+  /* position/top/left/z-index gérés via inline style (portal) */
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  padding: 10px;
+  min-width: 240px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 768px) {
+  /* position/top/left/transform gérés en JS pour mobile */
+  .cal-cell     { padding: 8px 2px; font-size: 0.82rem; }
+  .cal-day-name { font-size: 0.72rem; padding: 5px 0; }
+  .cal-nav      { padding: 6px 12px; font-size: 1.3rem; }
+  .cal-title    { font-size: 0.9rem; }
+  .cal-footer-btn { font-size: 0.82rem; padding: 6px 10px; }
+}
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.cal-title { font-size: 0.85rem; font-weight: 600; color: #333; cursor: default; }
+.cal-nav {
+  background: none; border: none; font-size: 1.2rem; color: #2980b9;
+  cursor: default; padding: 4px 8px; border-radius: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-nav:active { background: #e8f4fc; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day-name {
+  text-align: center; font-size: 0.68rem; font-weight: 600;
+  color: #6c757d; padding: 4px 0; cursor: default;
+}
+.cal-cell {
+  text-align: center; font-size: 0.78rem; padding: 6px 2px;
+  border-radius: 50%; cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.cal-cell:not(.cal-empty):not(.cal-disabled):active { background: #d0e8f7; }
+.cal-empty    { visibility: hidden; }
+.cal-disabled { color: #ccc; cursor: default; }
+.cal-today    { border: 1.5px solid #2980b9; color: #2980b9; font-weight: 600; }
+.cal-selected { background: #2980b9; color: white; font-weight: 600; border-radius: 50%; }
+.cal-footer {
+  display: flex; justify-content: space-between;
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0;
+}
+.cal-footer-btn {
+  background: none; border: none; font-size: 0.78rem; color: #2980b9;
+  cursor: default; padding: 4px 8px; border-radius: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-footer-btn:active { background: #e8f4fc; }
+.cal-backdrop { position: fixed; inset: 0; z-index: 10490; background: transparent; }

@@ -1,0 +1,1861 @@
+/* Section principale */
+.analytics-section {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.analytics-title {
+  color: #36022e;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.analytics-title i {
+  margin-right: 0.5rem;
+  color: #2980b9;
+}
+
+.trend-indicator {
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.trend-indicator.positive {
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+}
+
+.trend-indicator.negative {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+/* Container du graphique principal */
+.chart-container {
+  position: relative;
+  height: 180px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.chart-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #2980b9;
+}
+
+.chart-hint {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #888;
+  font-style: italic;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.chart-container:hover .chart-hint {
+  opacity: 1;
+}
+
+/* États de chargement et d'erreur */
+.chart-loading,
+.chart-empty,
+.chart-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  color: #64748b;
+}
+
+.loading-spinner {
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #2980b9;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.chart-error {
+  color: #dc3545;
+}
+
+.chart-error i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.retry-btn {
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: #1f6391;
+}
+
+/* Modal overlay */
+.chart-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal container */
+.chart-modal-container {
+  background: white;
+  width: 95vw;
+  height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.95) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header de la modal */
+.chart-modal-header {
+  background: linear-gradient(135deg, #2980b9 0%, #36022e 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  color: white !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  border-radius: 50% !important;
+  font-size: 20px !important;
+  font-weight: normal !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.2s ease !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  flex-basis: auto !important;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Filtres dans la modal */
+.modal-filters {
+  padding: 0.5rem 1.5rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-range input {
+  padding: 0.35rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.date-range span {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.apply-btn,
+.reset-btn {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.apply-btn {
+  background: #2980b9;
+  color: white;
+}
+
+.apply-btn:hover {
+  background: #1f6391;
+}
+
+.reset-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.reset-btn:hover {
+  background: #545b62;
+}
+
+/* Informations sur la période */
+.period-info {
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+  font-size: 0.85rem;
+}
+
+.period-display {
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  border-left: 4px solid;
+  background: white;
+}
+
+.period-display.info {
+  border-left-color: #17a2b8;
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.period-display.warning {
+  border-left-color: #ffc107;
+  background: #fff3cd;
+  color: #856404;
+}
+
+.period-display.error {
+  border-left-color: #dc3545;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.period-summary {
+  font-weight: 600;
+  margin: 0;
+}
+
+.period-error {
+  color: #721c24;
+  font-weight: 500;
+  margin-top: 0.3rem;
+}
+
+/* Wrapper pour le contenu exportable */
+.export-content-wrapper {
+  flex: 1;
+  min-height: 0; /* indispensable : empêche le flex item de dépasser le conteneur fixe */
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+/* Contrôles d'export (EN DEHORS du container exportable) */
+.export-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 1rem;
+}
+
+.export-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.export-info i {
+  color: #2980b9;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.export-container {
+  background: white;
+  margin: 0 1rem 1rem 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* En-tête avec titre UNIQUEMENT (boutons retirés) */
+.export-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.export-title {
+  color: #36022e;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Scopés à .chart-modal-overlay pour battre la règle globale .export-btn
+   de SuperAdminPage.css qui applique background:rgba(255,255,255,0.2)+color:white */
+.chart-modal-overlay .export-btn {
+  color: white;
+}
+
+.chart-modal-overlay .export-png {
+  background: #27ae60;
+  color: white;
+}
+
+.chart-modal-overlay .export-png:hover:not(:disabled) {
+  background: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+.chart-modal-overlay .export-pdf {
+  background: #e74c3c;
+  color: white;
+}
+
+.chart-modal-overlay .export-pdf:hover:not(:disabled) {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.chart-modal-overlay .export-excel {
+  background: #1d6f42;
+  color: white;
+}
+
+.chart-modal-overlay .export-excel:hover:not(:disabled) {
+  background: #165a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(29, 111, 66, 0.3);
+}
+
+.export-btn i {
+  font-size: 1rem;
+}
+
+/* Contenu du graphique modal */
+.modal-chart-content {
+  position: relative;
+  height: 350px;
+  margin-bottom: 2rem;
+}
+
+.modal-chart-content canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Tableau récapitulatif */
+.summary-table-container {
+  margin-top: 2rem;
+}
+
+.summary-table-title {
+  color: #36022e;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-table-title i {
+  color: #2980b9;
+}
+
+.summary-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 0.85rem;
+}
+
+.summary-table thead {
+  background: linear-gradient(135deg, #2980b9 0%, #36022e 100%);
+  color: white;
+}
+
+.summary-table th {
+  padding: 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.summary-table th.type-column {
+  min-width: 130px;
+  width: auto;
+  text-align: left;
+}
+
+.summary-table th.date-column {
+  min-width: 100px;
+  text-align: center;
+}
+
+.summary-table th.total-column {
+  min-width: 80px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.summary-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background 0.2s ease;
+}
+
+.summary-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.summary-table tbody tr.total-row {
+  background: #f8f9fa;
+  font-weight: 600;
+  border-top: 2px solid #dee2e6;
+}
+
+.summary-table tbody tr.total-row:hover {
+  background: #e9ecef;
+}
+
+.summary-table td {
+  padding: 0.7rem 0.8rem;
+  border-right: 1px solid #f1f3f5;
+}
+
+.summary-table td:last-child {
+  border-right: none;
+}
+
+.summary-table .type-cell {
+  font-weight: 500;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.type-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.summary-table .count-cell {
+  text-align: center;
+  color: #495057;
+}
+
+.summary-table .total-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #2980b9;
+  background: #f8f9fa;
+}
+
+.summary-table tbody tr.total-row .type-cell {
+  color: #36022e;
+}
+
+.summary-table tbody tr.total-row .count-cell,
+.summary-table tbody tr.total-row .total-cell {
+  color: #36022e;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .chart-modal-container {
+    width: 98vw;
+    height: 95vh;
+  }
+
+  .modal-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .export-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .export-info {
+    font-size: 0.8rem;
+  }
+
+  .export-buttons {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .export-container {
+    margin: 0 0.5rem 1rem 0.5rem;
+    padding: 1rem;
+  }
+
+  .export-title {
+    font-size: 1rem;
+  }
+
+  .summary-table {
+    font-size: 0.75rem;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-section {
+    padding: 1rem;
+  }
+
+  .analytics-title {
+    font-size: 0.9rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .chart-container {
+    height: 160px;
+  }
+
+  .chart-loading,
+  .chart-empty,
+  .chart-error {
+    height: 160px;
+  }
+
+  .chart-modal-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .chart-modal-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .chart-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .modal-filters {
+    padding: 0.8rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .date-range {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.3rem;
+  }
+
+  .date-range input {
+    width: 100%;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .apply-btn,
+  .reset-btn {
+    width: 100%;
+  }
+
+  .period-info {
+    padding: 0.5rem 1rem;
+  }
+
+  .export-container {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .export-controls {
+    padding: 0.8rem 1rem;
+  }
+
+  .export-title {
+    font-size: 1rem;
+  }
+
+  .export-buttons {
+    width: 100%;
+  }
+
+  .export-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .modal-chart-content {
+    height: 250px;
+  }
+
+  .summary-table-title {
+    font-size: 0.95rem;
+  }
+
+  .summary-table {
+    font-size: 0.7rem;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 0.4rem;
+  }
+
+  .summary-table th.type-column {
+    min-width: 120px;
+  }
+
+  .summary-table th.date-column {
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-title {
+    font-size: 0.85rem;
+  }
+
+  .trend-indicator {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .chart-container {
+    height: 140px;
+  }
+
+  .chart-loading,
+  .chart-empty,
+  .chart-error {
+    height: 140px;
+  }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+
+  .export-title {
+    font-size: 0.9rem;
+  }
+
+  .export-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .summary-table {
+    font-size: 0.65rem;
+  }
+
+  .type-indicator {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* États focus pour accessibilité */
+.export-btn:focus,
+.apply-btn:focus,
+.reset-btn:focus,
+.retry-btn:focus,
+.modal-close-btn:focus {
+  outline: 2px solid #2980b9;
+  outline-offset: 2px;
+}
+
+/* Animations supplémentaires */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.chart-loading .loading-spinner {
+  animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+}
+
+/* ===================================================
+   TOUT SUR UNE SEULE LIGNE
+   =================================================== */
+
+.modal-filters-oneline {
+  padding: 10px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-select-inline {
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: white;
+  min-width: 120px;
+  max-width: 150px;
+}
+
+.filter-select-inline:disabled {
+  background: #e9ecef;
+  cursor: not-allowed;
+}
+
+/* Taille par défaut du cselect-wrapper dans TimeChart (complète CustomSelect.css) */
+.filter-select-inline.cselect-wrapper,
+.cselect-wrapper.filter-select-inline {
+  min-width: 120px;
+  max-width: 150px;
+  font-size: 0.8rem;
+  flex: 1 1 calc(50% - 3px);
+}
+
+.filter-select-inline .cselect-display {
+  padding: 6px 10px;
+  border-radius: 4px;
+  min-height: 32px;
+}
+
+.date-input-inline {
+  padding: 6px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.date-separator {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin: 0 4px;
+}
+
+/* ── CustomDateInput : input natif caché, wrapper cliquable sans curseur ── */
+.custom-date-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  font-size: 0.8rem;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  min-width: 110px;
+  max-width: 150px;
+  flex: 1 1 calc(50% - 3px);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.custom-date-empty .custom-date-display {
+  color: #adb5bd;
+}
+
+.custom-date-display {
+  flex: 1;
+  font-size: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-date-icon {
+  font-size: 0.75rem;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+/* ── Calendrier custom ── */
+.custom-calendar {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10500; /* doit être > cal-backdrop (10490) pour que les clics atteignent le calendrier */
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  padding: 10px;
+  min-width: 240px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Sur mobile : position fixed centré pour éviter tout débordement hors écran */
+@media (max-width: 768px) {
+  .custom-calendar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(300px, 92vw);
+    min-width: unset;
+    z-index: 10500;
+    padding: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  }
+
+  .cal-cell {
+    padding: 8px 2px;
+    font-size: 0.82rem;
+  }
+
+  .cal-day-name {
+    font-size: 0.72rem;
+    padding: 5px 0;
+  }
+
+  .cal-nav {
+    padding: 6px 12px;
+    font-size: 1.3rem;
+  }
+
+  .cal-title {
+    font-size: 0.9rem;
+  }
+
+  .cal-footer-btn {
+    font-size: 0.82rem;
+    padding: 6px 10px;
+  }
+}
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cal-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  cursor: default;
+}
+
+.cal-nav {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #2980b9;
+  cursor: default;
+  padding: 4px 8px;
+  border-radius: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-nav:active { background: #e8f4fc; }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-day-name {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6c757d;
+  padding: 4px 0;
+  cursor: default;
+}
+
+.cal-cell {
+  text-align: center;
+  font-size: 0.78rem;
+  padding: 6px 2px;
+  border-radius: 50%;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+
+.cal-cell:not(.cal-empty):not(.cal-disabled):active {
+  background: #d0e8f7;
+}
+
+.cal-empty { visibility: hidden; }
+
+.cal-disabled {
+  color: #ccc;
+  cursor: default;
+}
+
+.cal-today {
+  border: 1.5px solid #2980b9;
+  color: #2980b9;
+  font-weight: 600;
+}
+
+.cal-selected {
+  background: #2980b9;
+  color: white;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.cal-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cal-footer-btn {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  color: #2980b9;
+  cursor: default;
+  padding: 4px 8px;
+  border-radius: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-footer-btn:active { background: #e8f4fc; }
+
+/* ── Grille du calendrier mois ── */
+.custom-month-calendar {
+  min-width: 220px;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.month-cell {
+  text-align: center;
+  font-size: 0.78rem;
+  padding: 8px 4px;
+  border-radius: 6px;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+  color: #333;
+}
+
+.month-cell:not(.cal-disabled):active {
+  background: #d0e8f7;
+}
+
+/* Backdrop mobile derrière le calendrier */
+.cal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10490;
+  background: transparent;
+}
+
+.months-inline-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.month-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+/* CustomMonthInput à l'intérieur d'un tag : prend toute la largeur, pas de contraintes fixes */
+.month-tag .custom-date-wrapper {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  border: none;
+  padding: 2px 6px;
+}
+
+.month-input-inline {
+  padding: 4px 6px;
+  border: none;
+  font-size: 0.75rem;
+  width: 110px;
+}
+
+.remove-month-inline {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: #e74c3c;
+  color: white;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.remove-month-inline:hover {
+  background: #c0392b;
+}
+
+.add-month-inline {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #2980b9;
+  color: white;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.add-month-inline:hover {
+  background: #1f6391;
+}
+
+.apply-btn-inline,
+.reset-btn-inline {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.apply-btn-inline {
+  background: #2980b9;
+  color: white;
+}
+
+.apply-btn-inline:hover {
+  background: #1f6391;
+}
+
+.reset-btn-inline {
+  background: #6c757d;
+  color: white;
+}
+
+.reset-btn-inline:hover {
+  background: #545b62;
+}
+
+/* Export CSV */
+.export-btn.export-csv {
+  background-color: #27ae60;
+  color: white;
+}
+
+.export-btn.export-csv:hover:not(:disabled) {
+  background-color: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+/* Responsive - passer sur 2 lignes si nécessaire */
+@media (max-width: 1200px) {
+  .modal-filters-oneline {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-filters-oneline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-select-inline,
+  .cselect-wrapper,
+  .date-input-inline,
+  .custom-date-wrapper {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .months-inline-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .month-tag {
+    width: 100%;
+  }
+  
+  .month-input-inline {
+    flex: 1;
+    width: auto;
+  }
+}
+
+/* ===================================================
+   RÉDUIRE L'ESPACE VIDE
+   =================================================== */
+
+.export-controls {
+  padding: 8px 20px !important;
+  margin-bottom: 5px !important;
+}
+
+.export-content-wrapper {
+  padding-top: 0 !important;
+}
+
+.export-container {
+  margin: 10px 20px !important;
+  padding: 15px !important;
+}
+
+.export-header {
+  margin-bottom: 15px !important;
+  padding-bottom: 10px !important;
+}
+
+.modal-chart-content {
+  margin-bottom: 20px !important;
+}
+
+.summary-table-container {
+  margin-top: 0 !important;
+}
+
+/* ==================== RESPONSIVE MODAL ==================== */
+
+@media (max-width: 1024px) {
+  .chart-modal-overlay {
+    padding: 10px;
+  }
+
+  .chart-modal-container {
+    width: 98vw;
+    height: 92vh;
+  }
+
+  .modal-chart-content {
+    height: clamp(220px, 32vh, 350px);
+  }
+
+  .export-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .export-buttons {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .export-container {
+    margin: 0 0.5rem 0.75rem !important;
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .chart-modal-container {
+    width: 100%;
+    height: 95vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .chart-modal-header {
+    padding: 0.7rem 1rem;
+  }
+
+  .chart-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .modal-close-btn {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 17px !important;
+  }
+
+  /* Filter bar: horizontal scroll strip instead of vertical column */
+  .modal-filters-oneline {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 8px 12px;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .modal-filters-oneline::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-select-inline,
+  .cselect-wrapper {
+    min-width: 100px;
+    max-width: 130px;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+  }
+
+  .date-input-inline {
+    min-width: 110px;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+  }
+
+  .months-inline-container {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+
+  .month-tag {
+    flex-shrink: 0;
+  }
+
+  .apply-btn-inline,
+  .reset-btn-inline {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .modal-chart-content {
+    height: clamp(180px, 28vh, 280px);
+    margin-bottom: 12px !important;
+  }
+
+  .export-controls {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .export-info {
+    font-size: 0.72rem;
+    flex: 1;
+  }
+
+  .export-buttons {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+  }
+
+  .export-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+    min-height: 32px;
+    gap: 0.3rem;
+  }
+
+  .export-btn i {
+    font-size: 0.85rem;
+  }
+
+  .export-container {
+    margin: 0 0.4rem 0.5rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .export-title {
+    font-size: 0.95rem;
+  }
+
+  /* Table : colonne type compacte — les noms sont courts (Pistes, Dalots…) */
+  .summary-table th,
+  .summary-table td {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.77rem;
+  }
+
+  .summary-table th.type-column {
+    min-width: 80px;
+    width: auto;
+  }
+
+  .summary-table th.date-column {
+    min-width: 72px;
+  }
+
+  .summary-table th.total-column {
+    min-width: 55px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-modal-container {
+    height: 97vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .chart-modal-header {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .chart-modal-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .modal-close-btn {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 14px !important;
+  }
+
+  .modal-filters-oneline {
+    padding: 7px 10px;
+    gap: 5px;
+  }
+
+  .filter-select-inline {
+    min-width: 90px;
+    max-width: 115px;
+    font-size: 0.72rem;
+    padding: 5px 7px;
+  }
+
+  .date-input-inline {
+    min-width: 100px;
+    font-size: 0.72rem;
+    padding: 5px 6px;
+  }
+
+  .modal-chart-content {
+    height: clamp(150px, 25vh, 230px);
+    margin-bottom: 8px !important;
+  }
+
+  /* Boutons export : icône + texte court, taille touch-friendly */
+  .export-controls {
+    padding: 0.4rem 0.6rem !important;
+    gap: 0.3rem;
+  }
+
+  .export-btn {
+    padding: 0.32rem 0.55rem;
+    font-size: 0.7rem;
+    min-height: 30px;
+    gap: 0.25rem;
+  }
+
+  .export-btn i {
+    font-size: 0.8rem;
+  }
+
+  /* Table : colonne type minimale sur petit mobile */
+  .summary-table th,
+  .summary-table td {
+    padding: 0.38rem 0.42rem;
+    font-size: 0.7rem;
+  }
+
+  .summary-table th.type-column {
+    min-width: 70px;
+    width: auto;
+  }
+
+  .summary-table th.date-column {
+    min-width: 62px;
+  }
+
+  .summary-table th.total-column {
+    min-width: 48px;
+  }
+}
+
+/* =============================================================
+   RESPONSIVE MOBILE COMPLET — remplace les règles précédentes
+   ============================================================= */
+
+/* Bouton toggle filtres : caché sur desktop */
+.filter-toggle-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  /* ---- Bouton toggle filtres ---- */
+  .filter-toggle-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 9px 14px;
+    background: #e9ecef;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #495057;
+    flex-shrink: 0;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .filter-toggle-mobile:active {
+    background: #dee2e6;
+  }
+
+  /* ---- Barre de filtres : 2 colonnes wrappées (remplace le scroll horizontal) ---- */
+  .modal-filters-oneline {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: unset !important;
+    scrollbar-width: auto !important;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  /* Filtres masqués quand toggle fermé */
+  .modal-filters-oneline.filters-collapsed {
+    display: none !important;
+  }
+
+  /* Selects : moitié de la largeur (2 colonnes) */
+  .filter-select-inline,
+  .cselect-wrapper {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-width: 0 !important;
+    max-width: calc(50% - 3px) !important;
+    box-sizing: border-box;
+    font-size: 0.78rem !important;
+  }
+  .filter-select-inline {
+    padding: 7px 8px !important;
+  }
+  .cselect-wrapper .cselect-display {
+    padding: 7px 8px !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* Inputs date : moitié de la largeur */
+  .date-input-inline,
+  .custom-date-wrapper {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-width: 0 !important;
+    max-width: calc(50% - 3px) !important;
+    box-sizing: border-box;
+    font-size: 0.78rem !important;
+    padding: 7px 8px !important;
+  }
+
+  /* Cacher le séparateur "à" entre les dates */
+  .date-separator {
+    display: none !important;
+  }
+
+  /* Conteneur mois : pleine largeur, 2 mois par ligne */
+  .months-inline-container {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    overflow-x: unset;
+    gap: 4px;
+  }
+
+  /* Chaque mois prend ~50% → 2 par ligne */
+  .month-tag {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: 0;
+  }
+
+  .month-input-inline {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  /* Appliquer / Réinitialiser : moitié chacun */
+  .apply-btn-inline,
+  .reset-btn-inline {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-width: 0 !important;
+    text-align: center;
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+    border-radius: 6px !important;
+    min-height: 36px;
+    box-sizing: border-box;
+  }
+
+  /* ---- Export controls : compact, sans texte info ---- */
+  .export-controls {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    padding: 6px 12px !important;
+    gap: 6px !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Cacher "Cliquez pour exporter" sur mobile : évident */
+  .export-info {
+    display: none !important;
+  }
+
+  .export-buttons {
+    width: 100% !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap;
+  }
+
+  .export-btn {
+    flex: 1;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* ---- Graphique masqué sur mobile : tableau uniquement (écran ET exports) ---- */
+  .modal-chart-content {
+    display: none !important;
+  }
+
+  /* ---- Tableau : compact et lisible ---- */
+  .summary-table-wrapper {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x; /* scroll horizontal géré ici → le vertical remonte à export-content-wrapper */
+  }
+
+  /* Largeur fixe identique sur th et td pour que la ligne verticale soit alignée */
+  .summary-table th.type-column,
+  .summary-table td.type-cell {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+  }
+
+  .summary-table .type-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .summary-table .type-cell span.type-label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---- Colonne "Type" sticky à gauche ---- */
+  /* La colonne Total scroll normalement avec les colonnes de dates */
+
+  .summary-table th.type-column {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: linear-gradient(135deg, #2980b9 0%, #36022e 100%);
+  }
+
+  .summary-table td.type-cell {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: white;
+  }
+
+  .summary-table tbody tr:hover td.type-cell {
+    background: #f8f9fa;
+  }
+
+  .summary-table tbody tr.total-row td.type-cell {
+    background: #f8f9fa;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .filter-toggle-mobile {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+
+  .filter-select-inline,
+  .cselect-wrapper .cselect-display {
+    font-size: 0.73rem !important;
+    padding: 6px 6px !important;
+  }
+
+  .date-input-inline,
+  .custom-date-wrapper {
+    font-size: 0.73rem !important;
+    padding: 6px 6px !important;
+  }
+
+  .apply-btn-inline,
+  .reset-btn-inline {
+    font-size: 0.75rem !important;
+    padding: 7px 8px !important;
+    min-height: 34px;
+  }
+
+  .export-btn {
+    padding: 0.35rem 0.4rem !important;
+    font-size: 0.75rem !important;
+    gap: 0.2rem;
+    min-height: 36px;
+  }
+
+  .export-btn i {
+    font-size: 0.8rem;
+  }
+
+  .modal-chart-content {
+    display: none !important;
+  }
+
+  /* Header modal plus compact */
+  .chart-modal-header {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .chart-modal-header h3 {
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+}
+
+/* ── Scroll fluide sur mobile ── */
+@media (max-width: 768px) {
+  .export-content-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* ── Pas de curseur sur appareil tactile (pointer: coarse = doigt) ── */
+@media (pointer: coarse) {
+  /* Tous les éléments interactifs : pas de curseur pointeur sur mobile */
+  select,
+  select option,
+  input[type="date"],
+  button,
+  .filter-select-inline,
+  .filter-select-inline option,
+  .date-input-inline,
+  .apply-btn-inline,
+  .reset-btn-inline,
+  .filter-toggle-mobile,
+  .export-btn,
+  .modal-close-btn,
+  .retry-btn,
+  .legend-item,
+  .chart-type-btn {
+    cursor: default !important;
+  }
+
+  /* Pas de sélection de texte sur les listes déroulantes */
+  select,
+  select option {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
+  /* Supprimer le highlight de tap bleu/gris au clic */
+  select,
+  input[type="date"],
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
