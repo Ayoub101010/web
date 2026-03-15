@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Django / Python
+*.sqlite3
+db.sqlite3
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Node modules
+frontend_web/node_modules/
+
+# Build frontend
+frontend_web/build/
+frontend_web/dist/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

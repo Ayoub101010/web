@@ -1210,3 +1210,31 @@ class SiteEnquete(models.Model):
 
 # Alias pour compatibilité avec l'ancien nom
 PprItial = SiteEnquete
+
+class PasswordResetRequest(models.Model):
+    """Demandes de réinitialisation de mot de passe (lecture côté web)"""
+    login = models.ForeignKey(
+        Login,
+        on_delete=models.CASCADE,
+        db_column='login_id',
+        null=True,
+        blank=True,
+        related_name='reset_requests',
+    )
+    email = models.TextField()
+    telephone = models.TextField()
+    status = models.TextField(default='pending')
+    handled_by = models.ForeignKey(
+        Login,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='handled_by',
+        related_name='handled_resets',
+    )
+    handled_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'password_reset_requests'
+        managed = False

@@ -12,11 +12,13 @@ import GestionUserPage from "./GestionUserPage";
 import "./SuperAdminPage.css";
 import GeographicFilter from "./GeographicFilterWithZoom";
 import DataTrackingPage from "./DataTrackingPage";
+import CartographiePage from "./CartographiePage";
 import { useIsMobile } from "../hooks/useIsMobile";
+import authService from "./authService";
 
 const SuperAdminPage = () => {
   const [currentView, setCurrentView] = useState(
-    () => sessionStorage.getItem("currentView_superadmin") || "map"
+    () => sessionStorage.getItem("currentView_superadmin") || "map",
   );
   const { logout, hasInterfaceAccess } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -26,6 +28,29 @@ const SuperAdminPage = () => {
   const [statsOpen, setStatsOpen] = useState(false);
   const [chartExpanded, setChartExpanded] = useState(false);
   const isMobile = useIsMobile(1024);
+
+  const [pendingResetCount, setPendingResetCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingResets = async () => {
+      try {
+        const headers = authService.getAuthHeader();
+        const res = await fetch(
+          "http://localhost:8000/api/password-reset-requests/",
+          {
+            headers,
+          },
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setPendingResetCount(data.pending_count || 0);
+        }
+      } catch (e) {}
+    };
+    fetchPendingResets();
+    const interval = setInterval(fetchPendingResets, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Récupérer les infos utilisateur depuis localStorage
   const getUserInfo = () => {
@@ -39,8 +64,7 @@ const SuperAdminPage = () => {
           email: u.email || "",
           role: u.role || "super_admin",
         };
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     return { nom: "Utilisateur", prenom: "", email: "", role: "super_admin" };
   };
@@ -64,8 +88,6 @@ const SuperAdminPage = () => {
     commune_id: "",
     types: new Set(),
   });
-
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -105,14 +127,14 @@ const SuperAdminPage = () => {
   // ── Lien Carte ↔ Tableau de suivi ────────────────────────────────────────
   useEffect(() => {
     const handleGoToTable = () => {
-      if (hasInterfaceAccess('suivi_donnees')) setCurrentView("data-tracking");
+      if (hasInterfaceAccess("suivi_donnees")) setCurrentView("data-tracking");
     };
-    const handleGoToMap   = () => setCurrentView("map");
+    const handleGoToMap = () => setCurrentView("map");
     window.addEventListener("entitySelectedOnMap", handleGoToTable);
-    window.addEventListener("showEntityOnMap",     handleGoToMap);
+    window.addEventListener("showEntityOnMap", handleGoToMap);
     return () => {
       window.removeEventListener("entitySelectedOnMap", handleGoToTable);
-      window.removeEventListener("showEntityOnMap",     handleGoToMap);
+      window.removeEventListener("showEntityOnMap", handleGoToMap);
     };
   }, []);
 
@@ -149,7 +171,8 @@ const SuperAdminPage = () => {
             className={`nav-item ${currentView === "map" ? "active" : ""}`}
             onClick={() => setCurrentView("map")}
           >
-            <i className="fas fa-map"></i><span>Carte</span>
+            <i className="fas fa-map"></i>
+            <span>Carte</span>
           </div>
 
           {hasInterfaceAccess("tableau_bord") && (
@@ -157,7 +180,8 @@ const SuperAdminPage = () => {
               className={`nav-item ${currentView === "dashboard" ? "active" : ""}`}
               onClick={() => setCurrentView("dashboard")}
             >
-              <i className="fas fa-chart-line"></i><span>Tableau de bord</span>
+              <i className="fas fa-chart-line"></i>
+              <span>Tableau de bord</span>
             </div>
           )}
 
@@ -165,8 +189,33 @@ const SuperAdminPage = () => {
             <div
               className={`nav-item ${currentView === "users" ? "active" : ""}`}
               onClick={() => setCurrentView("users")}
+              style={{ position: "relative" }}
             >
-              <i className="fas fa-users"></i><span>Utilisateurs</span>
+              <i className="fas fa-users"></i>
+              <span>Utilisateurs</span>
+              {pendingResetCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "2px",
+                    right: "2px",
+                    background: "#DC2626",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    width: "18px",
+                    height: "18px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.65rem",
+                    fontWeight: "700",
+                    border: "2px solid #1e3c72",
+                    animation: "pulse 2s infinite",
+                  }}
+                >
+                  {pendingResetCount}
+                </span>
+              )}
             </div>
           )}
 
@@ -175,9 +224,17 @@ const SuperAdminPage = () => {
               className={`nav-item ${currentView === "data-tracking" ? "active" : ""}`}
               onClick={() => setCurrentView("data-tracking")}
             >
-              <i className="fas fa-database"></i><span>Données</span>
+              <i className="fas fa-database"></i>
+              <span>Données</span>
             </div>
           )}
+          <div
+            className={`nav-item ${currentView === "cartographie" ? "active" : ""}`}
+            onClick={() => setCurrentView("cartographie")}
+          >
+            <i className="fas fa-map-marked-alt"></i>
+            <span>Cartographie</span>
+          </div>
         </div>
 
         <div className="user-profile" ref={profileRef}>
@@ -192,7 +249,11 @@ const SuperAdminPage = () => {
             <h4>
               {profile.prenom} {profile.nom}
             </h4>
-            <span>{profile.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+            <span>
+              {profile.role
+                .replace("_", " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
+            </span>
           </div>
 
           {showProfileMenu && (
@@ -248,17 +309,27 @@ const SuperAdminPage = () => {
         {isMobile && (sidebarOpen || statsOpen) && (
           <div
             className="mobile-overlay"
-            onClick={() => { setSidebarOpen(false); setStatsOpen(false); }}
+            onClick={() => {
+              setSidebarOpen(false);
+              setStatsOpen(false);
+            }}
           />
         )}
 
         {/* Sidebar / Drawer Filtres */}
-        <div className={`sidebar ${isMobile && sidebarOpen ? "sidebar-open" : ""}`}>
+        <div
+          className={`sidebar ${isMobile && sidebarOpen ? "sidebar-open" : ""}`}
+        >
           {/* Bouton fermer (mobile uniquement) */}
           {isMobile && (
             <div className="drawer-header">
-              <span><i className="fas fa-filter"></i> Filtres</span>
-              <button className="drawer-close-btn" onClick={() => setSidebarOpen(false)}>
+              <span>
+                <i className="fas fa-filter"></i> Filtres
+              </span>
+              <button
+                className="drawer-close-btn"
+                onClick={() => setSidebarOpen(false)}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -277,7 +348,11 @@ const SuperAdminPage = () => {
                     prefecture_id: filters.prefecture_id,
                     commune_id: filters.commune_id,
                   };
-                  if (JSON.stringify(geoFilters) === JSON.stringify(currentFilters)) return;
+                  if (
+                    JSON.stringify(geoFilters) ===
+                    JSON.stringify(currentFilters)
+                  )
+                    return;
                   setFilters((prev) => ({
                     ...prev,
                     region_id: geoFilters.region_id,
@@ -285,7 +360,11 @@ const SuperAdminPage = () => {
                     commune_id: geoFilters.commune_id,
                   }));
                   setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent("geographicFilterChanged", { detail: geoFilters }));
+                    window.dispatchEvent(
+                      new CustomEvent("geographicFilterChanged", {
+                        detail: geoFilters,
+                      }),
+                    );
                   }, 100);
                 }}
                 initialFilters={{
@@ -299,52 +378,103 @@ const SuperAdminPage = () => {
           </div>
 
           <div className="filter-section">
-            <div className="filter-title"><i className="fas fa-road"></i> Réseau Routier</div>
+            <div className="filter-title">
+              <i className="fas fa-road"></i> Réseau Routier
+            </div>
             <div className="filter-checkbox-group">
-              <div className="checkbox-item"><input type="checkbox" id="pistes" defaultChecked /><label htmlFor="pistes">Pistes</label></div>
-              <div className="checkbox-item"><input type="checkbox" id="chaussees" defaultChecked /><label htmlFor="chaussees">Chaussées</label></div>
+              <div className="checkbox-item">
+                <input type="checkbox" id="pistes" defaultChecked />
+                <label htmlFor="pistes">Pistes</label>
+              </div>
+              <div className="checkbox-item">
+                <input type="checkbox" id="chaussees" defaultChecked />
+                <label htmlFor="chaussees">Chaussées</label>
+              </div>
             </div>
           </div>
 
           <div className="filter-section">
-            <div className="filter-title"><i className="fas fa-building"></i> Infrastructures</div>
+            <div className="filter-title">
+              <i className="fas fa-building"></i> Infrastructures
+            </div>
             <div className="filter-checkbox-group">
-              {[["localites","Localités"],["ecoles","Écoles"],["marches","Marchés"],["batiments_administratifs","Bâtiments admin."],["infrastructures_hydrauliques","Hydrauliques"],["services_santes","Services santé"],["autres_infrastructures","Autres"]].map(([id, label]) => (
-                <div className="checkbox-item" key={id}><input type="checkbox" id={id} defaultChecked /><label htmlFor={id}>{label}</label></div>
+              {[
+                ["localites", "Localités"],
+                ["ecoles", "Écoles"],
+                ["marches", "Marchés"],
+                ["batiments_administratifs", "Bâtiments admin."],
+                ["infrastructures_hydrauliques", "Hydrauliques"],
+                ["services_santes", "Services santé"],
+                ["autres_infrastructures", "Autres"],
+              ].map(([id, label]) => (
+                <div className="checkbox-item" key={id}>
+                  <input type="checkbox" id={id} defaultChecked />
+                  <label htmlFor={id}>{label}</label>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="filter-section">
-            <div className="filter-title"><i className="fas fa-tools"></i> Ouvrages</div>
+            <div className="filter-title">
+              <i className="fas fa-tools"></i> Ouvrages
+            </div>
             <div className="filter-checkbox-group">
-              {[["buses","Buses"],["dalots","Dalots"],["ponts","Ponts"],["passages_submersibles","Passages submersibles"],["bacs","Bacs"]].map(([id, label]) => (
-                <div className="checkbox-item" key={id}><input type="checkbox" id={id} defaultChecked /><label htmlFor={id}>{label}</label></div>
+              {[
+                ["buses", "Buses"],
+                ["dalots", "Dalots"],
+                ["ponts", "Ponts"],
+                ["passages_submersibles", "Passages submersibles"],
+                ["bacs", "Bacs"],
+              ].map(([id, label]) => (
+                <div className="checkbox-item" key={id}>
+                  <input type="checkbox" id={id} defaultChecked />
+                  <label htmlFor={id}>{label}</label>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="filter-section">
-            <div className="filter-title"><i className="fas fa-exclamation-triangle"></i> Surveillance</div>
+            <div className="filter-title">
+              <i className="fas fa-exclamation-triangle"></i> Surveillance
+            </div>
             <div className="filter-checkbox-group">
-              {[["points_coupures","Points de coupure"],["points_critiques","Points critiques"]].map(([id, label]) => (
-                <div className="checkbox-item" key={id}><input type="checkbox" id={id} defaultChecked /><label htmlFor={id}>{label}</label></div>
+              {[
+                ["points_coupures", "Points de coupure"],
+                ["points_critiques", "Points critiques"],
+              ].map(([id, label]) => (
+                <div className="checkbox-item" key={id}>
+                  <input type="checkbox" id={id} defaultChecked />
+                  <label htmlFor={id}>{label}</label>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="filter-section">
-            <div className="filter-title"><i className="fas fa-file-alt"></i> Enquête</div>
+            <div className="filter-title">
+              <i className="fas fa-file-alt"></i> Enquête
+            </div>
             <div className="filter-checkbox-group">
-              {[["ppr_itial","Site de plaine"],["enquete_polygone","Zones de plaine"]].map(([id, label]) => (
-                <div className="checkbox-item" key={id}><input type="checkbox" id={id} defaultChecked /><label htmlFor={id}>{label}</label></div>
+              {[
+                ["ppr_itial", "Site de plaine"],
+                ["enquete_polygone", "Zones de plaine"],
+              ].map(([id, label]) => (
+                <div className="checkbox-item" key={id}>
+                  <input type="checkbox" id={id} defaultChecked />
+                  <label htmlFor={id}>{label}</label>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Bouton appliquer (mobile) */}
           {isMobile && (
-            <button className="apply-filters-btn" onClick={() => setSidebarOpen(false)}>
+            <button
+              className="apply-filters-btn"
+              onClick={() => setSidebarOpen(false)}
+            >
               <i className="fas fa-check"></i> Appliquer les filtres
             </button>
           )}
@@ -356,12 +486,19 @@ const SuperAdminPage = () => {
         </div>
 
         {/* Panel Stats (desktop: toujours visible / mobile: bottom sheet) */}
-        <div className={`right-panel ${isMobile && statsOpen ? "stats-open" : ""}`}>
+        <div
+          className={`right-panel ${isMobile && statsOpen ? "stats-open" : ""}`}
+        >
           {isMobile && <div className="sheet-handle"></div>}
           {isMobile && (
             <div className="drawer-header">
-              <span><i className="fas fa-chart-bar"></i> Statistiques</span>
-              <button className="drawer-close-btn" onClick={() => setStatsOpen(false)}>
+              <span>
+                <i className="fas fa-chart-bar"></i> Statistiques
+              </span>
+              <button
+                className="drawer-close-btn"
+                onClick={() => setStatsOpen(false)}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -377,14 +514,22 @@ const SuperAdminPage = () => {
         <div className="mobile-bottom-nav">
           <button
             className={`mobile-bottom-nav-btn${sidebarOpen ? " active" : ""}`}
-            onClick={() => { setSidebarOpen(!sidebarOpen); setStatsOpen(false); }}
+            onClick={() => {
+              setSidebarOpen(!sidebarOpen);
+              setStatsOpen(false);
+            }}
           >
-            <i className={`fas ${sidebarOpen ? "fa-times" : "fa-sliders-h"}`}></i>
+            <i
+              className={`fas ${sidebarOpen ? "fa-times" : "fa-sliders-h"}`}
+            ></i>
             <span>{sidebarOpen ? "Fermer" : "Filtres"}</span>
           </button>
           <button
             className={`mobile-bottom-nav-btn${statsOpen ? " active" : ""}`}
-            onClick={() => { setStatsOpen(!statsOpen); setSidebarOpen(false); }}
+            onClick={() => {
+              setStatsOpen(!statsOpen);
+              setSidebarOpen(false);
+            }}
           >
             <i className={`fas ${statsOpen ? "fa-times" : "fa-chart-bar"}`}></i>
             <span>{statsOpen ? "Fermer" : "Statistiques"}</span>
@@ -413,6 +558,13 @@ const SuperAdminPage = () => {
         style={{ display: currentView === "data-tracking" ? "block" : "none" }}
       >
         <DataTrackingPage />
+      </div>
+      {/* Vue Cartographie */}
+      <div
+        className="view-container cartographie-view"
+        style={{ display: currentView === "cartographie" ? "block" : "none" }}
+      >
+        <CartographiePage filters={filters} />
       </div>
     </div>
   );

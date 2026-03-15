@@ -19,6 +19,10 @@ const GestionUserPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionType, setActionType] = useState(""); // "view", "edit", "delete"
+  const [showPassword, setShowPassword] = useState(false);
+  const [resetRequests, setResetRequests] = useState([]);
+  const [pendingResetCount, setPendingResetCount] = useState(0);
+  const [visibleResetMdp, setVisibleResetMdp] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -53,7 +57,9 @@ const GestionUserPage = () => {
       const headers = authService.getAuthHeader();
 
       // Charger les régions
-      const regRes = await fetch("/api/regions/", { headers });
+      const regRes = await fetch("http://localhost:8000/api/regions/", {
+        headers,
+      });
 
       if (regRes.ok) {
         const data = await regRes.json();
@@ -61,7 +67,9 @@ const GestionUserPage = () => {
         // Extraction de la liste (Gestion du cas Paginated GeoJSON: results.features)
         let list = [];
         if (data.results) {
-          list = data.results.features || (Array.isArray(data.results) ? data.results : []);
+          list =
+            data.results.features ||
+            (Array.isArray(data.results) ? data.results : []);
         } else if (data.features) {
           list = data.features;
         } else if (Array.isArray(data)) {
@@ -69,7 +77,7 @@ const GestionUserPage = () => {
         }
 
         // Normalisation: si GeoJSON, extraire properties
-        const normalized = list.map(item => {
+        const normalized = list.map((item) => {
           if (item.type === "Feature" && item.properties) {
             return { ...item.properties, id: item.properties.id || item.id };
           }
@@ -82,21 +90,25 @@ const GestionUserPage = () => {
       }
 
       // Charger les préfectures
-      const prefRes = await fetch("/api/prefectures/", { headers });
+      const prefRes = await fetch("http://localhost:8000/api/prefectures/", {
+        headers,
+      });
 
       if (prefRes.ok) {
         const data = await prefRes.json();
 
         let list = [];
         if (data.results) {
-          list = data.results.features || (Array.isArray(data.results) ? data.results : []);
+          list =
+            data.results.features ||
+            (Array.isArray(data.results) ? data.results : []);
         } else if (data.features) {
           list = data.features;
         } else if (Array.isArray(data)) {
           list = data;
         }
 
-        const normalized = list.map(item => {
+        const normalized = list.map((item) => {
           if (item.type === "Feature" && item.properties) {
             return { ...item.properties, id: item.properties.id || item.id };
           }
@@ -107,8 +119,7 @@ const GestionUserPage = () => {
       } else {
         const errorText = await prefRes.text();
       }
-    } catch (err) {
-    }
+    } catch (err) {}
   }, []);
 
   const calculateStats = React.useCallback((usersList) => {
@@ -116,9 +127,17 @@ const GestionUserPage = () => {
     const btgr = usersList.filter((u) => u.role === "BTGR").length;
     const spgr = usersList.filter((u) => u.role === "SPGR").length;
     const admins = usersList.filter((u) => u.role === "Admin").length;
-    const super_admins = usersList.filter((u) => u.role === "Super_admin").length;
+    const super_admins = usersList.filter(
+      (u) => u.role === "Super_admin",
+    ).length;
 
-    setStats({ total, BTGR: btgr, SPGR: spgr, Admin: admins, Super_admin: super_admins });
+    setStats({
+      total,
+      BTGR: btgr,
+      SPGR: spgr,
+      Admin: admins,
+      Super_admin: super_admins,
+    });
   }, []);
 
   const loadUsers = React.useCallback(async () => {
@@ -130,17 +149,56 @@ const GestionUserPage = () => {
         setUsers(usersList);
         calculateStats(usersList);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
     setLoading(false);
   }, [calculateStats]);
 
+  // ===== NOUVEAU : Charger les demandes de reset MDP =====
+  const loadResetRequests = async () => {
+    try {
+      const headers = authService.getAuthHeader();
+      const response = await fetch(
+        "http://localhost:8000/api/password-reset-requests/?status=all",
+        {
+          headers,
+        },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setResetRequests(data.results || []);
+        setPendingResetCount(data.pending_count || 0);
+      }
+    } catch (error) {
+      console.error("Erreur chargement demandes reset:", error);
+    }
+  };
+
+  const handleMarkResetHandled = async (requestId) => {
+    try {
+      const headers = authService.getAuthHeader();
+      const response = await fetch(
+        "http://localhost:8000/api/password-reset-requests/",
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ request_id: requestId }),
+        },
+      );
+      if (response.ok) {
+        loadResetRequests();
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
   useEffect(() => {
     loadUsers();
     loadGeography();
+    loadResetRequests();
   }, [loadUsers, loadGeography]);
-
-
 
   const handleAddUser = async () => {
     if (!newUser.nom || !newUser.prenom || !newUser.mail || !newUser.mdp) {
@@ -168,7 +226,7 @@ const GestionUserPage = () => {
         loadUsers();
       } else {
         alert(
-          "Erreur: " + (response.error || "Impossible de créer l'utilisateur")
+          "Erreur: " + (response.error || "Impossible de créer l'utilisateur"),
         );
       }
     } catch (error) {
@@ -187,15 +245,25 @@ const GestionUserPage = () => {
         prenom: selectedUser.prenom,
         mail: selectedUser.mail,
         role: selectedUser.role,
-        is_active: selectedUser.is_active !== undefined ? selectedUser.is_active : true,
-        region_ids: selectedUser.region_ids || (selectedUser.assigned_regions ? selectedUser.assigned_regions.map(r => r.region_id) : []),
-        prefecture_ids: selectedUser.prefecture_ids || (selectedUser.assigned_prefectures ? selectedUser.assigned_prefectures.map(p => p.prefecture_id) : []),
-        interface_names: selectedUser.interface_names || selectedUser.allowed_interfaces || [],
+        is_active:
+          selectedUser.is_active !== undefined ? selectedUser.is_active : true,
+        region_ids:
+          selectedUser.region_ids ||
+          (selectedUser.assigned_regions
+            ? selectedUser.assigned_regions.map((r) => r.region_id)
+            : []),
+        prefecture_ids:
+          selectedUser.prefecture_ids ||
+          (selectedUser.assigned_prefectures
+            ? selectedUser.assigned_prefectures.map((p) => p.prefecture_id)
+            : []),
+        interface_names:
+          selectedUser.interface_names || selectedUser.allowed_interfaces || [],
       };
 
       const response = await userManagementService.updateUser(
         selectedUser.id,
-        updateData
+        updateData,
       );
       if (response.success) {
         alert("Utilisateur modifié avec succès !");
@@ -205,7 +273,7 @@ const GestionUserPage = () => {
       } else {
         alert(
           "Erreur: " +
-          (response.error || "Impossible de modifier l'utilisateur")
+            (response.error || "Impossible de modifier l'utilisateur"),
         );
       }
     } catch (error) {
@@ -239,6 +307,7 @@ const GestionUserPage = () => {
   const handleAction = (user, type) => {
     setSelectedUser({ ...user });
     setActionType(type);
+    setShowPassword(false);
   };
 
   const closeModal = () => {
@@ -324,6 +393,209 @@ const GestionUserPage = () => {
         </div>
       </div>
 
+      {/* ===== Bandeau demandes de reset MDP ===== */}
+      {resetRequests.length > 0 && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, #FEF2F2, #FFF7ED)",
+            border: "1px solid #FECACA",
+            borderRadius: "12px",
+            padding: "1rem 1.25rem",
+            marginBottom: "1rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              {pendingResetCount > 0 && (
+                <span
+                  style={{
+                    background: "#DC2626",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    width: "24px",
+                    height: "24px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.75rem",
+                    fontWeight: "700",
+                  }}
+                >
+                  {pendingResetCount}
+                </span>
+              )}
+              <strong style={{ color: "#991B1B", fontSize: "0.95rem" }}>
+                Demandes de mot de passe
+                {pendingResetCount > 0
+                  ? ` (${pendingResetCount} en attente)`
+                  : " (toutes traitées)"}
+              </strong>
+            </div>
+          </div>
+          <div
+            style={{
+              maxHeight: "250px",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {resetRequests.map((req) => {
+              const isPending = req.status === "pending";
+              const mdpVisible = visibleResetMdp[req.id] || false;
+
+              return (
+                <div
+                  key={req.id}
+                  style={{
+                    background: isPending ? "#fff" : "#F0FDF4",
+                    borderRadius: "8px",
+                    padding: "0.75rem 1rem",
+                    border: isPending
+                      ? "1px solid #E5E7EB"
+                      : "1px solid #BBF7D0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "0.5rem",
+                    opacity: isPending ? 1 : 0.85,
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <strong style={{ color: "#1E293B" }}>
+                        {req.user_prenom} {req.user_nom}
+                      </strong>
+                      <span style={{ color: "#64748B", fontSize: "0.85rem" }}>
+                        {req.email}
+                      </span>
+                      {!isPending && (
+                        <span
+                          style={{
+                            background: "#D1FAE5",
+                            color: "#065F46",
+                            fontSize: "0.7rem",
+                            fontWeight: "700",
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                          }}
+                        >
+                          ✓ TRAITÉ
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "#64748B",
+                        marginTop: "3px",
+                      }}
+                    >
+                      📞 <strong>{req.telephone}</strong>
+                      &nbsp;·&nbsp; 🔑 MDP :&nbsp;
+                      <code
+                        style={{
+                          background: "#F1F5F9",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                          letterSpacing: mdpVisible ? "0.5px" : "2px",
+                        }}
+                      >
+                        {mdpVisible ? req.user_mdp || "—" : "••••••"}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setVisibleResetMdp((prev) => ({
+                            ...prev,
+                            [req.id]: !prev[req.id],
+                          }))
+                        }
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "0.8rem",
+                          marginLeft: "4px",
+                          color: mdpVisible ? "#DC2626" : "#0284C7",
+                        }}
+                      >
+                        {mdpVisible ? "🙈" : "👁️"}
+                      </button>
+                      &nbsp;·&nbsp; 🕐{" "}
+                      {new Date(req.created_at).toLocaleString("fr-FR")}
+                      {!isPending && req.handled_at && (
+                        <>
+                          &nbsp;·&nbsp; ✅ traité le{" "}
+                          {new Date(req.handled_at).toLocaleString("fr-FR")}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {isPending ? (
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Avez-vous bien communiqué le mot de passe à ${req.user_prenom} ${req.user_nom} ?`,
+                          )
+                        ) {
+                          handleMarkResetHandled(req.id);
+                        }
+                      }}
+                      style={{
+                        background: "#059669",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "0.4rem 0.8rem",
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ✅ Marquer comme traité
+                    </button>
+                  ) : (
+                    <span
+                      style={{
+                        color: "#059669",
+                        fontSize: "0.8rem",
+                        fontWeight: "600",
+                      }}
+                    >
+                      ✅ Résolu
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {/* Contrôles */}
       <div className="gestion-controls">
         <input
@@ -345,10 +617,13 @@ const GestionUserPage = () => {
             <option value="Admin">Administrateurs</option>
             <option value="Super_admin">Super Admins</option>
           </CustomSelect>
-          <button className="btn green" onClick={() => {
-            loadGeography(); // Forcer le rafraîchissement des données avant d'ouvrir
-            setShowAddModal(true);
-          }}>
+          <button
+            className="btn green"
+            onClick={() => {
+              loadGeography(); // Forcer le rafraîchissement des données avant d'ouvrir
+              setShowAddModal(true);
+            }}
+          >
             ➕ Nouvel utilisateur
           </button>
         </div>
@@ -398,20 +673,46 @@ const GestionUserPage = () => {
                   <td>
                     {user.role === "BTGR" ? (
                       <div>
-                        <strong>{user.assigned_regions?.length || 0} Région(s)</strong>
-                        <div style={{ fontSize: "0.8rem", color: "#666", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {user.assigned_regions?.map(r => r.region_nom).join(", ")}
+                        <strong>
+                          {user.assigned_regions?.length || 0} Région(s)
+                        </strong>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#666",
+                            maxWidth: "200px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {user.assigned_regions
+                            ?.map((r) => r.region_nom)
+                            .join(", ")}
                         </div>
                       </div>
                     ) : user.role === "SPGR" ? (
                       <div>
-                        <strong>{user.assigned_prefectures?.length || 0} Préfecture(s)</strong>
-                        <div style={{ fontSize: "0.8rem", color: "#666", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {user.assigned_prefectures?.map(p => p.prefecture_nom).join(", ")}
+                        <strong>
+                          {user.assigned_prefectures?.length || 0} Préfecture(s)
+                        </strong>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#666",
+                            maxWidth: "200px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {user.assigned_prefectures
+                            ?.map((p) => p.prefecture_nom)
+                            .join(", ")}
                         </div>
                       </div>
-                    ) : (user.role === "Super_admin" || user.role === "Admin") ? (
-                      <span style={{ color: "#38a169", fontWeight: "600" }}>Toute la Guinée</span>
+                    ) : user.role === "Super_admin" || user.role === "Admin" ? (
+                      <span style={{ color: "#38a169", fontWeight: "600" }}>
+                        Toute la Guinée
+                      </span>
                     ) : (
                       <>
                         <strong>{user.commune_nom || "Non assignée"}</strong>
@@ -456,7 +757,6 @@ const GestionUserPage = () => {
             </tbody>
           </table>
         )}
-
       </div>
 
       {/* Layout Card Mobile */}
@@ -491,29 +791,59 @@ const GestionUserPage = () => {
                 </div>
 
                 <div className="user-card-field full-width">
-                  <span className="user-card-field-label">Couverture Géographique</span>
+                  <span className="user-card-field-label">
+                    Couverture Géographique
+                  </span>
                   <span className="user-card-field-value">
                     {user.role === "BTGR" ? (
                       <div>
-                        <strong>{user.assigned_regions?.length || 0} Région(s)</strong>
-                        <div style={{ fontSize: "0.85rem", color: "#666", marginTop: "4px" }}>
-                          {user.assigned_regions?.map(r => r.region_nom).join(", ")}
+                        <strong>
+                          {user.assigned_regions?.length || 0} Région(s)
+                        </strong>
+                        <div
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "#666",
+                            marginTop: "4px",
+                          }}
+                        >
+                          {user.assigned_regions
+                            ?.map((r) => r.region_nom)
+                            .join(", ")}
                         </div>
                       </div>
                     ) : user.role === "SPGR" ? (
                       <div>
-                        <strong>{user.assigned_prefectures?.length || 0} Préfecture(s)</strong>
-                        <div style={{ fontSize: "0.85rem", color: "#666", marginTop: "4px" }}>
-                          {user.assigned_prefectures?.map(p => p.prefecture_nom).join(", ")}
+                        <strong>
+                          {user.assigned_prefectures?.length || 0} Préfecture(s)
+                        </strong>
+                        <div
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "#666",
+                            marginTop: "4px",
+                          }}
+                        >
+                          {user.assigned_prefectures
+                            ?.map((p) => p.prefecture_nom)
+                            .join(", ")}
                         </div>
                       </div>
-                    ) : (user.role === "Super_admin" || user.role === "Admin") ? (
-                      <span style={{ color: "#38a169", fontWeight: "600" }}>Toute la Guinée</span>
+                    ) : user.role === "Super_admin" || user.role === "Admin" ? (
+                      <span style={{ color: "#38a169", fontWeight: "600" }}>
+                        Toute la Guinée
+                      </span>
                     ) : (
                       <>
                         <strong>{user.commune_nom || "Non assignée"}</strong>
                         {user.prefecture_nom && (
-                          <div style={{ fontSize: "0.85rem", color: "#666", marginTop: "4px" }}>
+                          <div
+                            style={{
+                              fontSize: "0.85rem",
+                              color: "#666",
+                              marginTop: "4px",
+                            }}
+                          >
                             {user.prefecture_nom}, {user.region_nom}
                           </div>
                         )}
@@ -573,41 +903,131 @@ const GestionUserPage = () => {
                 {/* MODE LECTURE */}
                 {actionType === "view" && (
                   <div className="modal-view-content">
-                    <p><strong>Nom :</strong> {selectedUser.nom} {selectedUser.prenom}</p>
-                    <p><strong>Email :</strong> {selectedUser.mail}</p>
-                    <p><strong>Rôle :</strong> {getRoleLabel(selectedUser.role)}</p>
+                    <p>
+                      <strong>Nom :</strong> {selectedUser.nom}{" "}
+                      {selectedUser.prenom}
+                    </p>
+                    <p>
+                      <strong>Email :</strong> {selectedUser.mail}
+                    </p>
+                    <p>
+                      <strong>Rôle :</strong> {getRoleLabel(selectedUser.role)}
+                    </p>
+
+                    {/* ===== Affichage du mot de passe ===== */}
+                    <div
+                      style={{
+                        marginTop: "1rem",
+                        padding: "0.8rem 1rem",
+                        background: "#f8fafc",
+                        borderRadius: "8px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <div>
+                          <strong
+                            style={{ fontSize: "0.85rem", color: "#64748b" }}
+                          >
+                            Mot de passe :
+                          </strong>
+                          <span
+                            style={{
+                              marginLeft: "0.5rem",
+                              fontFamily: "monospace",
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              color: "#1e293b",
+                              letterSpacing: showPassword ? "0.5px" : "2px",
+                            }}
+                          >
+                            {showPassword
+                              ? selectedUser.mdp || "Non disponible"
+                              : "••••••••"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{
+                            background: showPassword ? "#fee2e2" : "#e0f2fe",
+                            color: showPassword ? "#dc2626" : "#0284c7",
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "0.35rem 0.75rem",
+                            fontSize: "0.8rem",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            transition: "all 0.2s",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {showPassword ? "🙈 Masquer" : "👁️ Révéler"}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* MODE ÉDITION */}
                 {actionType === "edit" && (
-                  <form className="edit-form" onSubmit={(e) => e.preventDefault()}>
+                  <form
+                    className="edit-form"
+                    onSubmit={(e) => e.preventDefault()}
+                  >
                     <label>Nom</label>
                     <input
                       type="text"
                       value={selectedUser.nom}
-                      onChange={(e) => setSelectedUser({ ...selectedUser, nom: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          nom: e.target.value,
+                        })
+                      }
                     />
 
                     <label>Prénom</label>
                     <input
                       type="text"
                       value={selectedUser.prenom}
-                      onChange={(e) => setSelectedUser({ ...selectedUser, prenom: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          prenom: e.target.value,
+                        })
+                      }
                     />
 
                     <label>Email</label>
                     <input
                       type="email"
                       value={selectedUser.mail}
-                      onChange={(e) => setSelectedUser({ ...selectedUser, mail: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          mail: e.target.value,
+                        })
+                      }
                     />
 
                     <label>Rôle</label>
                     <CustomSelect
                       className="cselect-form"
                       value={selectedUser.role}
-                      onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          role: e.target.value,
+                        })
+                      }
                     >
                       <option value="BTGR">BTGR (Régional)</option>
                       <option value="SPGR">SPGR (Préfectoral)</option>
@@ -617,72 +1037,135 @@ const GestionUserPage = () => {
 
                     {selectedUser.role === "BTGR" && (
                       <>
-                        <label style={{ gridColumn: "span 2" }}>Régions Assignées</label>
-                        <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
-                          {Array.isArray(regions) && regions.map((reg) => (
-                            <label key={reg.id} className="checkbox-item">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  selectedUser.region_ids?.includes(reg.id) ||
-                                  selectedUser.assigned_regions?.some(r => r.region_id === reg.id)
-                                }
-                                onChange={(e) => {
-                                  const currentIds = selectedUser.region_ids || selectedUser.assigned_regions?.map(r => r.region_id) || [];
-                                  const newIds = e.target.checked
-                                    ? [...currentIds, reg.id]
-                                    : currentIds.filter((id) => id !== reg.id);
-                                  setSelectedUser({ ...selectedUser, region_ids: newIds });
-                                }}
-                              />
-                              {reg.nom}
-                            </label>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {selectedUser.role === "SPGR" && (
-                      <>
-                        <label style={{ gridColumn: "span 2" }}>Région de référence</label>
-                        <CustomSelect
-                          className="cselect-form"
-                          value={selectedUser.temp_region_id || ""}
-                          onChange={(e) => setSelectedUser({ ...selectedUser, temp_region_id: e.target.value })}
+                        <label style={{ gridColumn: "span 2" }}>
+                          Régions Assignées
+                        </label>
+                        <div
+                          className="multi-select-container"
+                          style={{ gridColumn: "span 2" }}
                         >
-                          <option value="">-- Sélectionner une région --</option>
-                          {regions.map(r => <option key={r.id} value={r.id}>{r.nom}</option>)}
-                        </CustomSelect>
-
-                        <label style={{ gridColumn: "span 2" }}>Préfectures Assignées</label>
-                        <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
-                          {Array.isArray(prefectures) && prefectures
-                            .filter(p => selectedUser.temp_region_id && (p.regions_id === parseInt(selectedUser.temp_region_id) || p.regions_id_id === parseInt(selectedUser.temp_region_id)))
-                            .map((pref) => (
-                              <label key={pref.id} className="checkbox-item">
+                          {Array.isArray(regions) &&
+                            regions.map((reg) => (
+                              <label key={reg.id} className="checkbox-item">
                                 <input
                                   type="checkbox"
                                   checked={
-                                    selectedUser.prefecture_ids?.includes(pref.id) ||
-                                    selectedUser.assigned_prefectures?.some(p => p.prefecture_id === pref.id)
+                                    selectedUser.region_ids?.includes(reg.id) ||
+                                    selectedUser.assigned_regions?.some(
+                                      (r) => r.region_id === reg.id,
+                                    )
                                   }
                                   onChange={(e) => {
-                                    const currentIds = selectedUser.prefecture_ids || selectedUser.assigned_prefectures?.map(p => p.prefecture_id) || [];
+                                    const currentIds =
+                                      selectedUser.region_ids ||
+                                      selectedUser.assigned_regions?.map(
+                                        (r) => r.region_id,
+                                      ) ||
+                                      [];
                                     const newIds = e.target.checked
-                                      ? [...currentIds, pref.id]
-                                      : currentIds.filter((id) => id !== pref.id);
-                                    setSelectedUser({ ...selectedUser, prefecture_ids: newIds });
+                                      ? [...currentIds, reg.id]
+                                      : currentIds.filter(
+                                          (id) => id !== reg.id,
+                                        );
+                                    setSelectedUser({
+                                      ...selectedUser,
+                                      region_ids: newIds,
+                                    });
                                   }}
                                 />
-                                {pref.nom}
+                                {reg.nom}
                               </label>
                             ))}
                         </div>
                       </>
                     )}
 
-                    <label style={{ gridColumn: "span 2" }}>Accès aux Interfaces</label>
-                    <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
+                    {selectedUser.role === "SPGR" && (
+                      <>
+                        <label style={{ gridColumn: "span 2" }}>
+                          Région de référence
+                        </label>
+                        <CustomSelect
+                          className="cselect-form"
+                          value={selectedUser.temp_region_id || ""}
+                          onChange={(e) =>
+                            setSelectedUser({
+                              ...selectedUser,
+                              temp_region_id: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="">
+                            -- Sélectionner une région --
+                          </option>
+                          {regions.map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.nom}
+                            </option>
+                          ))}
+                        </CustomSelect>
+
+                        <label style={{ gridColumn: "span 2" }}>
+                          Préfectures Assignées
+                        </label>
+                        <div
+                          className="multi-select-container"
+                          style={{ gridColumn: "span 2" }}
+                        >
+                          {Array.isArray(prefectures) &&
+                            prefectures
+                              .filter(
+                                (p) =>
+                                  selectedUser.temp_region_id &&
+                                  (p.regions_id ===
+                                    parseInt(selectedUser.temp_region_id) ||
+                                    p.regions_id_id ===
+                                      parseInt(selectedUser.temp_region_id)),
+                              )
+                              .map((pref) => (
+                                <label key={pref.id} className="checkbox-item">
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      selectedUser.prefecture_ids?.includes(
+                                        pref.id,
+                                      ) ||
+                                      selectedUser.assigned_prefectures?.some(
+                                        (p) => p.prefecture_id === pref.id,
+                                      )
+                                    }
+                                    onChange={(e) => {
+                                      const currentIds =
+                                        selectedUser.prefecture_ids ||
+                                        selectedUser.assigned_prefectures?.map(
+                                          (p) => p.prefecture_id,
+                                        ) ||
+                                        [];
+                                      const newIds = e.target.checked
+                                        ? [...currentIds, pref.id]
+                                        : currentIds.filter(
+                                            (id) => id !== pref.id,
+                                          );
+                                      setSelectedUser({
+                                        ...selectedUser,
+                                        prefecture_ids: newIds,
+                                      });
+                                    }}
+                                  />
+                                  {pref.nom}
+                                </label>
+                              ))}
+                        </div>
+                      </>
+                    )}
+
+                    <label style={{ gridColumn: "span 2" }}>
+                      Accès aux Interfaces
+                    </label>
+                    <div
+                      className="multi-select-container"
+                      style={{ gridColumn: "span 2" }}
+                    >
                       {INTERFACES.map((itf) => (
                         <label key={itf.id} className="checkbox-item">
                           <input
@@ -692,11 +1175,19 @@ const GestionUserPage = () => {
                               selectedUser.allowed_interfaces?.includes(itf.id)
                             }
                             onChange={(e) => {
-                              const currentInterfaces = selectedUser.interface_names || selectedUser.allowed_interfaces || [];
+                              const currentInterfaces =
+                                selectedUser.interface_names ||
+                                selectedUser.allowed_interfaces ||
+                                [];
                               const newInterfaces = e.target.checked
                                 ? [...currentInterfaces, itf.id]
-                                : currentInterfaces.filter((name) => name !== itf.id);
-                              setSelectedUser({ ...selectedUser, interface_names: newInterfaces });
+                                : currentInterfaces.filter(
+                                    (name) => name !== itf.id,
+                                  );
+                              setSelectedUser({
+                                ...selectedUser,
+                                interface_names: newInterfaces,
+                              });
                             }}
                           />
                           {itf.label}
@@ -704,7 +1195,11 @@ const GestionUserPage = () => {
                       ))}
                     </div>
 
-                    <button type="button" className="btn green" onClick={handleEditUser}>
+                    <button
+                      type="button"
+                      className="btn green"
+                      onClick={handleEditUser}
+                    >
                       💾 Enregistrer
                     </button>
                   </form>
@@ -715,19 +1210,32 @@ const GestionUserPage = () => {
                   <div className="modal-delete-content">
                     <p>
                       Voulez-vous vraiment supprimer{" "}
-                      <strong>{selectedUser.nom} {selectedUser.prenom}</strong> ?
+                      <strong>
+                        {selectedUser.nom} {selectedUser.prenom}
+                      </strong>{" "}
+                      ?
                     </p>
                     <div className="delete-actions">
-                      <button className="btn red" onClick={() => { handleDeleteUser(selectedUser.id); closeModal(); }}>
+                      <button
+                        className="btn red"
+                        onClick={() => {
+                          handleDeleteUser(selectedUser.id);
+                          closeModal();
+                        }}
+                      >
                         🗑️ Oui, supprimer
                       </button>
-                      <button className="btn" onClick={closeModal}>Annuler</button>
+                      <button className="btn" onClick={closeModal}>
+                        Annuler
+                      </button>
                     </div>
                   </div>
                 )}
 
                 {actionType !== "delete" && (
-                  <button className="btn modal-close-btn" onClick={closeModal}>❌ Fermer</button>
+                  <button className="btn modal-close-btn" onClick={closeModal}>
+                    ❌ Fermer
+                  </button>
                 )}
               </div>
             </div>
@@ -744,21 +1252,58 @@ const GestionUserPage = () => {
                 <h2>Nouvel Utilisateur</h2>
               </div>
               <div className="modal-inner-body">
-                <form className="edit-form" onSubmit={(e) => e.preventDefault()}>
+                <form
+                  className="edit-form"
+                  onSubmit={(e) => e.preventDefault()}
+                >
                   <label>Nom *</label>
-                  <input type="text" value={newUser.nom} onChange={(e) => setNewUser({ ...newUser, nom: e.target.value })} placeholder="Nom de famille" />
+                  <input
+                    type="text"
+                    value={newUser.nom}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, nom: e.target.value })
+                    }
+                    placeholder="Nom de famille"
+                  />
 
                   <label>Prénom *</label>
-                  <input type="text" value={newUser.prenom} onChange={(e) => setNewUser({ ...newUser, prenom: e.target.value })} placeholder="Prénom" />
+                  <input
+                    type="text"
+                    value={newUser.prenom}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, prenom: e.target.value })
+                    }
+                    placeholder="Prénom"
+                  />
 
                   <label>Email *</label>
-                  <input type="email" value={newUser.mail} onChange={(e) => setNewUser({ ...newUser, mail: e.target.value })} placeholder="adresse@email.com" />
+                  <input
+                    type="email"
+                    value={newUser.mail}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, mail: e.target.value })
+                    }
+                    placeholder="adresse@email.com"
+                  />
 
                   <label>Mot de passe *</label>
-                  <input type="password" value={newUser.mdp} onChange={(e) => setNewUser({ ...newUser, mdp: e.target.value })} placeholder="Mot de passe" />
+                  <input
+                    type="password"
+                    value={newUser.mdp}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, mdp: e.target.value })
+                    }
+                    placeholder="Mot de passe"
+                  />
 
                   <label>Rôle *</label>
-                  <CustomSelect className="cselect-form" value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
+                  <CustomSelect
+                    className="cselect-form"
+                    value={newUser.role}
+                    onChange={(e) =>
+                      setNewUser({ ...newUser, role: e.target.value })
+                    }
+                  >
                     <option value="BTGR">BTGR (Régional)</option>
                     <option value="SPGR">SPGR (Préfectoral)</option>
                     <option value="Admin">Administrateur</option>
@@ -767,64 +1312,146 @@ const GestionUserPage = () => {
 
                   {newUser.role === "BTGR" && (
                     <>
-                      <label style={{ gridColumn: "span 2" }}>Régions Assignées</label>
-                      <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
-                        {Array.isArray(regions) && regions.map((reg) => (
-                          <label key={reg.id} className="checkbox-item">
-                            <input type="checkbox" checked={newUser.region_ids.includes(reg.id)}
-                              onChange={(e) => {
-                                const newIds = e.target.checked ? [...newUser.region_ids, reg.id] : newUser.region_ids.filter((id) => id !== reg.id);
-                                setNewUser({ ...newUser, region_ids: newIds });
-                              }} />
-                            {reg.nom}
-                          </label>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {newUser.role === "SPGR" && (
-                    <>
-                      <label style={{ gridColumn: "span 2" }}>Région de référence</label>
-                      <CustomSelect className="cselect-form" value={spgrRegionId} onChange={(e) => setSpgrRegionId(e.target.value)}>
-                        <option value="">-- Sélectionner une région --</option>
-                        {regions.map(r => <option key={r.id} value={r.id}>{r.nom}</option>)}
-                      </CustomSelect>
-                      <label style={{ gridColumn: "span 2" }}>Préfectures Assignées</label>
-                      <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
-                        {Array.isArray(prefectures) && prefectures
-                          .filter(p => spgrRegionId && (p.regions_id === parseInt(spgrRegionId) || p.regions_id_id === parseInt(spgrRegionId)))
-                          .map((pref) => (
-                            <label key={pref.id} className="checkbox-item">
-                              <input type="checkbox" checked={newUser.prefecture_ids.includes(pref.id)}
+                      <label style={{ gridColumn: "span 2" }}>
+                        Régions Assignées
+                      </label>
+                      <div
+                        className="multi-select-container"
+                        style={{ gridColumn: "span 2" }}
+                      >
+                        {Array.isArray(regions) &&
+                          regions.map((reg) => (
+                            <label key={reg.id} className="checkbox-item">
+                              <input
+                                type="checkbox"
+                                checked={newUser.region_ids.includes(reg.id)}
                                 onChange={(e) => {
-                                  const newIds = e.target.checked ? [...newUser.prefecture_ids, pref.id] : newUser.prefecture_ids.filter((id) => id !== pref.id);
-                                  setNewUser({ ...newUser, prefecture_ids: newIds });
-                                }} />
-                              {pref.nom}
+                                  const newIds = e.target.checked
+                                    ? [...newUser.region_ids, reg.id]
+                                    : newUser.region_ids.filter(
+                                        (id) => id !== reg.id,
+                                      );
+                                  setNewUser({
+                                    ...newUser,
+                                    region_ids: newIds,
+                                  });
+                                }}
+                              />
+                              {reg.nom}
                             </label>
                           ))}
                       </div>
                     </>
                   )}
 
-                  <label style={{ gridColumn: "span 2" }}>Accès aux Interfaces</label>
-                  <div className="multi-select-container" style={{ gridColumn: "span 2" }}>
+                  {newUser.role === "SPGR" && (
+                    <>
+                      <label style={{ gridColumn: "span 2" }}>
+                        Région de référence
+                      </label>
+                      <CustomSelect
+                        className="cselect-form"
+                        value={spgrRegionId}
+                        onChange={(e) => setSpgrRegionId(e.target.value)}
+                      >
+                        <option value="">-- Sélectionner une région --</option>
+                        {regions.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.nom}
+                          </option>
+                        ))}
+                      </CustomSelect>
+                      <label style={{ gridColumn: "span 2" }}>
+                        Préfectures Assignées
+                      </label>
+                      <div
+                        className="multi-select-container"
+                        style={{ gridColumn: "span 2" }}
+                      >
+                        {Array.isArray(prefectures) &&
+                          prefectures
+                            .filter(
+                              (p) =>
+                                spgrRegionId &&
+                                (p.regions_id === parseInt(spgrRegionId) ||
+                                  p.regions_id_id === parseInt(spgrRegionId)),
+                            )
+                            .map((pref) => (
+                              <label key={pref.id} className="checkbox-item">
+                                <input
+                                  type="checkbox"
+                                  checked={newUser.prefecture_ids.includes(
+                                    pref.id,
+                                  )}
+                                  onChange={(e) => {
+                                    const newIds = e.target.checked
+                                      ? [...newUser.prefecture_ids, pref.id]
+                                      : newUser.prefecture_ids.filter(
+                                          (id) => id !== pref.id,
+                                        );
+                                    setNewUser({
+                                      ...newUser,
+                                      prefecture_ids: newIds,
+                                    });
+                                  }}
+                                />
+                                {pref.nom}
+                              </label>
+                            ))}
+                      </div>
+                    </>
+                  )}
+
+                  <label style={{ gridColumn: "span 2" }}>
+                    Accès aux Interfaces
+                  </label>
+                  <div
+                    className="multi-select-container"
+                    style={{ gridColumn: "span 2" }}
+                  >
                     {INTERFACES.map((itf) => (
                       <label key={itf.id} className="checkbox-item">
-                        <input type="checkbox" checked={newUser.interface_names.includes(itf.id)}
+                        <input
+                          type="checkbox"
+                          checked={newUser.interface_names.includes(itf.id)}
                           onChange={(e) => {
-                            const newInterfaces = e.target.checked ? [...newUser.interface_names, itf.id] : newUser.interface_names.filter((name) => name !== itf.id);
-                            setNewUser({ ...newUser, interface_names: newInterfaces });
-                          }} />
+                            const newInterfaces = e.target.checked
+                              ? [...newUser.interface_names, itf.id]
+                              : newUser.interface_names.filter(
+                                  (name) => name !== itf.id,
+                                );
+                            setNewUser({
+                              ...newUser,
+                              interface_names: newInterfaces,
+                            });
+                          }}
+                        />
                         {itf.label}
                       </label>
                     ))}
                   </div>
 
-                  <div style={{ gridColumn: "span 2", display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                    <button type="button" className="btn" onClick={() => setShowAddModal(false)}>Annuler</button>
-                    <button type="button" className="btn green" onClick={handleAddUser} disabled={loading}>
+                  <div
+                    style={{
+                      gridColumn: "span 2",
+                      display: "flex",
+                      gap: "1rem",
+                      marginTop: "1rem",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setShowAddModal(false)}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="button"
+                      className="btn green"
+                      onClick={handleAddUser}
+                      disabled={loading}
+                    >
                       {loading ? "Création..." : "Créer l'utilisateur"}
                     </button>
                   </div>

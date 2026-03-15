@@ -75,4 +75,6 @@ urlpatterns = [
         InfrastructureUpdateAPIView.as_view(),
         name='api-update-infrastructure',
     ),
+
+    path('api/password-reset-requests/', PasswordResetRequestsAPIView.as_view(), name='api-password-reset-requests'),
 ]

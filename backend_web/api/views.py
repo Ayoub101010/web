@@ -255,6 +255,72 @@ class LoginAPIView(APIView):
             "expires_in": 3600
         }, status=status.HTTP_200_OK)
 
+
+class PasswordResetRequestsAPIView(APIView):
+    """
+    GET  : Lister les demandes de reset (pour le SuperAdmin)
+    POST : Marquer une demande comme traitée
+    """
+
+    def get(self, request):
+        """Lister les demandes pending (+ optionnel: toutes)"""
+        status_filter = request.GET.get('status', 'pending')
+
+        if status_filter == 'all':
+            qs = PasswordResetRequest.objects.select_related('login').order_by('-created_at')
+        else:
+            qs = PasswordResetRequest.objects.select_related('login').filter(
+                status=status_filter
+            ).order_by('-created_at')
+
+        serializer = PasswordResetRequestSerializer(qs, many=True)
+
+        # Compter les pending pour le badge
+        pending_count = PasswordResetRequest.objects.filter(status='pending').count()
+
+        return Response({
+            "results": serializer.data,
+            "pending_count": pending_count,
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """Marquer une demande comme traitée"""
+        request_id = request.data.get('request_id')
+
+        if not request_id:
+            return Response(
+                {"error": "request_id requis"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            reset_req = PasswordResetRequest.objects.get(id=request_id)
+        except PasswordResetRequest.DoesNotExist:
+            return Response(
+                {"error": "Demande introuvable"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        reset_req.status = 'handled'
+        reset_req.handled_at = timezone.now()
+        # Identifier le SuperAdmin qui traite la demande
+        try:
+            from rest_framework_simplejwt.authentication import JWTAuthentication
+            auth = JWTAuthentication()
+            raw_token = auth.get_raw_token(auth.get_header(request))
+            validated = auth.get_validated_token(raw_token)
+            reset_req.handled_by_id = validated['user_id']
+        except Exception:
+            pass
+
+        reset_req.save(update_fields=['status', 'handled_at', 'handled_by'])
+
+        return Response(
+            {"message": "Demande marquée comme traitée."},
+            status=status.HTTP_200_OK,
+        )
+    
+    
 class UserManagementAPIView(APIView):
     """API dediee a la gestion des utilisateurs par le super_admin"""
     

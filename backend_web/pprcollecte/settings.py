@@ -84,9 +84,9 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'dngr',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'postgres123',
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5434',
         'OPTIONS': {
             'client_encoding': 'UTF8',
         },
@@ -155,13 +155,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import os
 
 # Chemins vers les DLL et librairies
-GDAL_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.14\bin\gdal312.dll"
-GEOS_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.14\bin\geos_c.dll"
-PROJ_LIB = r"C:\Program Files\QGIS 3.40.14\share\proj"
+GDAL_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.0\bin\gdal309.dll"
+GEOS_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.0\bin\geos_c.dll"
+PROJ_LIB = r"C:\Program Files\QGIS 3.40.0\share\proj"
 
-# Ajouter le dossier bin de QGIS au PATH pour que les DLL soient trouvées
-os.environ['PATH'] = r"C:\Program Files\QGIS 3.40.14\bin;" + os.environ['PATH']
-
+os.environ['PATH'] = r"C:\Program Files\QGIS 3.40.0\bin;" + os.environ['PATH']
 os.environ['PROJ_LIB'] = PROJ_LIB
 
 from datetime import timedelta

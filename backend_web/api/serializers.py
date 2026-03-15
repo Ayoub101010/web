@@ -59,7 +59,7 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Login
         fields = [
-            'id', 'nom', 'prenom', 'mail', 'role', 'communes_rurales_id',
+            'id', 'nom', 'prenom', 'mail', 'mdp', 'role', 'communes_rurales_id',
             'commune_complete', 'commune_nom', 'prefecture_nom', 'prefecture_id',
             'region_nom', 'region_id', 'is_active', 'last_login',
             'assigned_regions', 'assigned_prefectures', 'allowed_interfaces', 'is_admin'
@@ -89,6 +89,19 @@ class LoginSerializer(serializers.ModelSerializer):
         """Check if user is admin"""
         return obj.is_admin()
 
+# Serializers pour les demandes de mdps 
+class PasswordResetRequestSerializer(serializers.ModelSerializer):
+    user_nom = serializers.CharField(source='login.nom', read_only=True)
+    user_prenom = serializers.CharField(source='login.prenom', read_only=True)
+    user_mdp = serializers.CharField(source='login.mdp', read_only=True)
+
+    class Meta:
+        model = PasswordResetRequest
+        fields = [
+            'id', 'login', 'email', 'telephone', 'status',
+            'user_nom', 'user_prenom', 'user_mdp',
+            'created_at', 'handled_at',
+        ]
 
 class UserRegionSerializer(serializers.ModelSerializer):
     """Serializer for user-region assignments"""

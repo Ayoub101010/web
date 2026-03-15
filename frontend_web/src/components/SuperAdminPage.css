@@ -185,7 +185,7 @@ body {
   width: 100%;
 }
 
-.superadmin-wrapper .sidebar>.filter-section .filter-select {
+.superadmin-wrapper .sidebar > .filter-section .filter-select {
   padding: 0.75rem;
   border: 2px solid #e1e8ed;
   border-radius: 8px;
@@ -808,8 +808,12 @@ body {
 }
 
 @keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── En-tête de chaque drawer (bouton fermer) ── */
@@ -888,7 +892,9 @@ body {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   white-space: nowrap;
 }
 
@@ -933,7 +939,9 @@ body {
   padding: 6px 0;
   position: relative;
   border-right: 1px solid #e2e8f0;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .mobile-bottom-nav-btn:last-child {
@@ -951,7 +959,7 @@ body {
 }
 
 .mobile-bottom-nav-btn.active::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 25%;
@@ -975,7 +983,6 @@ body {
 /* ==================== RESPONSIVE MOBILE (≤1024px) ==================== */
 
 @media (max-width: 1024px) {
-
   /* ── Wrapper global ── */
   .superadmin-wrapper {
     height: 100vh;
@@ -1095,8 +1102,10 @@ body {
     left: -100% !important;
     width: 100% !important;
     height: calc(100vh - 52px) !important;
-    height: calc(100dvh - 52px) !important; /* S'arrête au-dessus de la bottom-nav */
-    z-index: 1050 !important;     /* Au-dessus des contrôles Leaflet (z-index: 1000) */
+    height: calc(
+      100dvh - 52px
+    ) !important; /* S'arrête au-dessus de la bottom-nav */
+    z-index: 1050 !important; /* Au-dessus des contrôles Leaflet (z-index: 1000) */
     background: #ffffff !important;
     box-shadow: none !important;
     transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -1183,8 +1192,8 @@ body {
     right: 0 !important;
     bottom: -80vh !important;
     width: 100% !important;
-    height: 80vh !important;      /* Augmenté: 70→80vh pour plus d'espace */
-    z-index: 1050 !important;     /* Au-dessus des contrôles Leaflet (z-index: 1000) */
+    height: 80vh !important; /* Augmenté: 70→80vh pour plus d'espace */
+    z-index: 1050 !important; /* Au-dessus des contrôles Leaflet (z-index: 1000) */
     background: #ffffff !important;
     border-radius: 20px 20px 0 0 !important;
     box-shadow: 0 -6px 32px rgba(0, 0, 0, 0.22) !important;
@@ -1217,7 +1226,10 @@ body {
   }
 
   /* Séparateur visuel entre les charts */
-  .superadmin-wrapper .right-panel > *:not(.sheet-handle):not(.drawer-header) + *:not(.sheet-handle):not(.drawer-header) {
+  .superadmin-wrapper
+    .right-panel
+    > *:not(.sheet-handle):not(.drawer-header)
+    + *:not(.sheet-handle):not(.drawer-header) {
     border-top: 1px solid #f0f0f0;
   }
 
@@ -1226,7 +1238,7 @@ body {
     height: 140px !important;
     margin-bottom: 0 !important;
     position: relative !important;
-    overflow: hidden !important;  /* Empêche le canvas de déborder */
+    overflow: hidden !important; /* Empêche le canvas de déborder */
   }
 
   /* InfrastructureDonut.css applique canvas { height: auto !important }
@@ -1306,10 +1318,10 @@ body {
   .apply-filters-btn {
     display: flex;
     position: sticky;
-    bottom: 0;           /* Le drawer s'arrête à 52px du bas, pas besoin de décalage */
+    bottom: 0; /* Le drawer s'arrête à 52px du bas, pas besoin de décalage */
     background: white;
     padding: 0.75rem 0 0.75rem;
-    margin-top: auto;    /* Pousse vers le bas si contenu court */
+    margin-top: auto; /* Pousse vers le bas si contenu court */
     border-top: 1px solid #e2e8f0;
   }
 }
@@ -1413,5 +1425,16 @@ body {
   .superadmin-wrapper .right-panel {
     height: 75vh !important;
     bottom: -75vh !important;
+  }
+}
+
+/* Badge notification demandes MDP */
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
   }
 }

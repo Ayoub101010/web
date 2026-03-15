@@ -10,11 +10,12 @@ import "./SuperAdminPage.css"; // Réutilise les mêmes styles
 import { useAuth } from "./AuthContext";
 import GestionUserPage from "./GestionUserPage";
 import DataTrackingPage from "./DataTrackingPage";
+import CartographiePage from "./CartographiePage";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const AdminPage = () => {
   const [currentView, setCurrentView] = useState(
-    () => sessionStorage.getItem("currentView_admin") || "map"
+    () => sessionStorage.getItem("currentView_admin") || "map",
   );
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileRef = useRef(null);
@@ -48,7 +49,7 @@ const AdminPage = () => {
           email: userData.mail || userData.email || "",
           role: userData.role || "admin",
         };
-      } catch (e) { }
+      } catch (e) {}
     }
 
     return { nom: "Utilisateur", prenom: "", email: "", role: "admin" };
@@ -92,14 +93,14 @@ const AdminPage = () => {
   // ── Lien Carte ↔ Tableau de suivi ────────────────────────────────────────
   useEffect(() => {
     const handleGoToTable = () => {
-      if (hasInterfaceAccess('suivi_donnees')) setCurrentView("data-tracking");
+      if (hasInterfaceAccess("suivi_donnees")) setCurrentView("data-tracking");
     };
-    const handleGoToMap   = () => setCurrentView("map");
+    const handleGoToMap = () => setCurrentView("map");
     window.addEventListener("entitySelectedOnMap", handleGoToTable);
-    window.addEventListener("showEntityOnMap",     handleGoToMap);
+    window.addEventListener("showEntityOnMap", handleGoToMap);
     return () => {
       window.removeEventListener("entitySelectedOnMap", handleGoToTable);
-      window.removeEventListener("showEntityOnMap",     handleGoToMap);
+      window.removeEventListener("showEntityOnMap", handleGoToMap);
     };
   }, []);
 
@@ -118,7 +119,8 @@ const AdminPage = () => {
             className={`nav-item ${currentView === "map" ? "active" : ""}`}
             onClick={() => setCurrentView("map")}
           >
-            <i className="fas fa-map-marked-alt"></i><span>Carte</span>
+            <i className="fas fa-map-marked-alt"></i>
+            <span>Carte</span>
           </div>
 
           {hasInterfaceAccess("tableau_bord") && (
@@ -126,7 +128,8 @@ const AdminPage = () => {
               className={`nav-item ${currentView === "dashboard" ? "active" : ""}`}
               onClick={() => setCurrentView("dashboard")}
             >
-              <i className="fas fa-chart-line"></i><span>Tableau de Bord</span>
+              <i className="fas fa-chart-line"></i>
+              <span>Tableau de Bord</span>
             </div>
           )}
 
@@ -135,7 +138,8 @@ const AdminPage = () => {
               className={`nav-item ${currentView === "users" ? "active" : ""}`}
               onClick={() => setCurrentView("users")}
             >
-              <i className="fas fa-users"></i><span>Utilisateurs</span>
+              <i className="fas fa-users"></i>
+              <span>Utilisateurs</span>
             </div>
           )}
 
@@ -144,7 +148,8 @@ const AdminPage = () => {
               className={`nav-item ${currentView === "data-tracking" ? "active" : ""}`}
               onClick={() => setCurrentView("data-tracking")}
             >
-              <i className="fas fa-database"></i><span>Données</span>
+              <i className="fas fa-database"></i>
+              <span>Données</span>
             </div>
           )}
         </div>
@@ -162,7 +167,11 @@ const AdminPage = () => {
             <h4>
               {profile.prenom} {profile.nom}
             </h4>
-            <span>{profile.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+            <span>
+              {profile.role
+                .replace("_", " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
+            </span>
           </div>
 
           {showProfileMenu && (
@@ -188,16 +197,17 @@ const AdminPage = () => {
           className="modal-overlay"
           onClick={() => setShowLogoutModal(false)}
         >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2 className="modal-title">
               Êtes-vous sûr de vouloir vous déconnecter ?
             </h2>
             <div className="modal-buttons">
-              <button type="button" onClick={handleLogout}>Oui</button>
-              <button type="button" onClick={() => setShowLogoutModal(false)}>Non</button>
+              <button type="button" onClick={handleLogout}>
+                Oui
+              </button>
+              <button type="button" onClick={() => setShowLogoutModal(false)}>
+                Non
+              </button>
             </div>
           </div>
         </div>
@@ -212,17 +222,27 @@ const AdminPage = () => {
         {isMobile && (sidebarOpen || statsOpen) && (
           <div
             className="mobile-overlay"
-            onClick={() => { setSidebarOpen(false); setStatsOpen(false); }}
+            onClick={() => {
+              setSidebarOpen(false);
+              setStatsOpen(false);
+            }}
           />
         )}
 
         {/* Sidebar / Drawer Filtres */}
-        <div className={`sidebar ${isMobile && sidebarOpen ? "sidebar-open" : ""}`}>
+        <div
+          className={`sidebar ${isMobile && sidebarOpen ? "sidebar-open" : ""}`}
+        >
           {/* Bouton fermer (mobile uniquement) */}
           {isMobile && (
             <div className="drawer-header">
-              <span><i className="fas fa-filter"></i> Filtres</span>
-              <button className="drawer-close-btn" onClick={() => setSidebarOpen(false)}>
+              <span>
+                <i className="fas fa-filter"></i> Filtres
+              </span>
+              <button
+                className="drawer-close-btn"
+                onClick={() => setSidebarOpen(false)}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -240,7 +260,7 @@ const AdminPage = () => {
                   window.dispatchEvent(
                     new CustomEvent("geographicFilterChanged", {
                       detail: geoFilters,
-                    })
+                    }),
                   );
                 }, 100);
               }}
@@ -346,7 +366,10 @@ const AdminPage = () => {
 
           {/* Bouton appliquer (mobile) */}
           {isMobile && (
-            <button className="apply-filters-btn" onClick={() => setSidebarOpen(false)}>
+            <button
+              className="apply-filters-btn"
+              onClick={() => setSidebarOpen(false)}
+            >
               <i className="fas fa-check"></i> Appliquer les filtres
             </button>
           )}
@@ -358,12 +381,19 @@ const AdminPage = () => {
         </div>
 
         {/* Panel Stats (desktop: toujours visible / mobile: bottom sheet) */}
-        <div className={`right-panel ${isMobile && statsOpen ? "stats-open" : ""}`}>
+        <div
+          className={`right-panel ${isMobile && statsOpen ? "stats-open" : ""}`}
+        >
           {isMobile && <div className="sheet-handle"></div>}
           {isMobile && (
             <div className="drawer-header">
-              <span><i className="fas fa-chart-bar"></i> Statistiques</span>
-              <button className="drawer-close-btn" onClick={() => setStatsOpen(false)}>
+              <span>
+                <i className="fas fa-chart-bar"></i> Statistiques
+              </span>
+              <button
+                className="drawer-close-btn"
+                onClick={() => setStatsOpen(false)}
+              >
                 <i className="fas fa-times"></i>
               </button>
             </div>
@@ -379,14 +409,22 @@ const AdminPage = () => {
         <div className="mobile-bottom-nav">
           <button
             className={`mobile-bottom-nav-btn${sidebarOpen ? " active" : ""}`}
-            onClick={() => { setSidebarOpen(!sidebarOpen); setStatsOpen(false); }}
+            onClick={() => {
+              setSidebarOpen(!sidebarOpen);
+              setStatsOpen(false);
+            }}
           >
-            <i className={`fas ${sidebarOpen ? "fa-times" : "fa-sliders-h"}`}></i>
+            <i
+              className={`fas ${sidebarOpen ? "fa-times" : "fa-sliders-h"}`}
+            ></i>
             <span>{sidebarOpen ? "Fermer" : "Filtres"}</span>
           </button>
           <button
             className={`mobile-bottom-nav-btn${statsOpen ? " active" : ""}`}
-            onClick={() => { setStatsOpen(!statsOpen); setSidebarOpen(false); }}
+            onClick={() => {
+              setStatsOpen(!statsOpen);
+              setSidebarOpen(false);
+            }}
           >
             <i className={`fas ${statsOpen ? "fa-times" : "fa-chart-bar"}`}></i>
             <span>{statsOpen ? "Fermer" : "Statistiques"}</span>
@@ -416,6 +454,13 @@ const AdminPage = () => {
         style={{ display: currentView === "data-tracking" ? "block" : "none" }}
       >
         <DataTrackingPage />
+      </div>
+      {/* Vue Cartographie */}
+      <div
+        className="view-container cartographie-view"
+        style={{ display: currentView === "cartographie" ? "block" : "none" }}
+      >
+        <CartographiePage filters={{}} />
       </div>
     </div>
   );

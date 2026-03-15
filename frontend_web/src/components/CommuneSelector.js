@@ -18,7 +18,7 @@ const CommuneSelector = ({ selectedCommune, onCommuneSelect }) => {
 
 
       // Utiliser l'API communes_rurales avec filtre q
-      const response = await fetch(`/api/communes/search/?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://localhost:8000/api/communes/search/?q=${encodeURIComponent(query)}`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);

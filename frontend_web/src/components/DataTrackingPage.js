@@ -392,7 +392,7 @@ const DataTrackingPage = () => {
         // Charger aussi la hiérarchie pour le filtrage RBAC
         let hData = await hybridCache.getHierarchy();
         if (!hData) {
-          const hRes = await fetch("/api/geography/hierarchy/");
+          const hRes = await fetch("http://localhost:8000/api/geography/hierarchy/");
           const hJson = await hRes.json();
           if (hJson.success) {
             hData = hJson.hierarchy;

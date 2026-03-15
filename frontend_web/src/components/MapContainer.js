@@ -157,7 +157,7 @@ const formatPopupContent = (properties) => {
     }
   }
 
-  const pprWhitelist = ["nom", "original_type", "code_piste", "code_gps", "projet", "entreprise", "financement", "travaux_debut", "travaux_fin", "type_de_realisation", "amenage_ou_non_amenage", "superficie_enquetes_ha", "superficie_digitalisee", "created_at", "updated_at", "commune_nom"];
+  const pprWhitelist = ["nom", "original_type", "code_piste", "projet", "entreprise", "financement", "travaux_debut", "travaux_fin", "type_de_realisation", "amenage_ou_non_amenage", "superficie_enquetes_ha", "superficie_digitalisee", "created_at", "updated_at", "commune_nom"];
 
   let keysToProcess = [];
   const baseKeys = Object.keys(properties);
@@ -508,7 +508,7 @@ const MapContainer = () => {
           let hierarchy = GLOBAL_HIERARCHY_CACHE || await hybridCache.getHierarchy();
           if (!hierarchy) {
             try {
-              const resp = await fetch("/api/geography/hierarchy/", );
+              const resp = await fetch("http://localhost:8000/api/geography/hierarchy/", );
               const json = await resp.json();
               if (json.success) {
                 hierarchy = json.hierarchy;
@@ -544,7 +544,7 @@ const MapContainer = () => {
           let hierarchy = GLOBAL_HIERARCHY_CACHE || await hybridCache.getHierarchy();
           if (!hierarchy) {
             try {
-              const resp = await fetch("/api/geography/hierarchy/", );
+              const resp = await fetch("http://localhost:8000/api/geography/hierarchy/", );
               const json = await resp.json();
               if (json.success) { hierarchy = json.hierarchy; GLOBAL_HIERARCHY_CACHE = hierarchy; await hybridCache.saveHierarchy(hierarchy); }
             } catch (e) {}
@@ -565,7 +565,7 @@ const MapContainer = () => {
       let earlyHierarchy = GLOBAL_HIERARCHY_CACHE || await hybridCache.getHierarchy();
       if (!earlyHierarchy) {
         try {
-          const resp = await fetch("/api/geography/hierarchy/", );
+          const resp = await fetch("http://localhost:8000/api/geography/hierarchy/", );
           const json = await resp.json();
           if (json.success) { earlyHierarchy = json.hierarchy; GLOBAL_HIERARCHY_CACHE = earlyHierarchy; await hybridCache.saveHierarchy(earlyHierarchy); }
         } catch (e) {}
@@ -593,7 +593,7 @@ const MapContainer = () => {
           const geoJsonData = convertToGeoJSON(infraData);
           GLOBAL_DATA_CACHE = geoJsonData;
           setLocalDataCache(GLOBAL_DATA_CACHE);
-          const hierarchyResponse = await fetch("/api/geography/hierarchy/", );
+          const hierarchyResponse = await fetch("http://localhost:8000/api/geography/hierarchy/", );
           const hierarchyJson = await hierarchyResponse.json();
           if (hierarchyJson.success) {
             GLOBAL_HIERARCHY_CACHE = hierarchyJson.hierarchy;
@@ -605,7 +605,7 @@ const MapContainer = () => {
           return;
         }
         // Chargement sans filtres serveur — filtrage géographique côté client
-        const [dataResult, hierarchyResponse] = await Promise.all([dataservice.loadMapData({}), fetch("/api/geography/hierarchy/", )]);
+        const [dataResult, hierarchyResponse] = await Promise.all([dataservice.loadMapData({}), fetch("http://localhost:8000/api/geography/hierarchy/", )]);
         const hierarchyJson = await hierarchyResponse.json();
         if (dataResult.success && dataResult.data) {
           const geoJsonData = dataResult.isGeoJSON ? dataResult.data : convertToGeoJSON(dataResult.data);
@@ -736,7 +736,7 @@ const MapContainer = () => {
     else if (regionIds.length > 0) { type = "region"; id = regionIds[regionIds.length - 1]; }
     if (!type || !id) { map.setView([9.9456, -11.3167], 7); return; }
     try {
-      const response = await fetch(`/api/geography/zoom/?type=${type}&id=${id}`, );
+      const response = await fetch(`http://localhost:8000/api/geography/zoom/?type=${type}&id=${id}`, );
       const data = await response.json();
       if (data.success && data.location) {
         if (data.location.bounds) {
