@@ -49,7 +49,11 @@ const SuperAdminPage = () => {
     };
     fetchPendingResets();
     const interval = setInterval(fetchPendingResets, 60000);
-    return () => clearInterval(interval);
+    window.addEventListener("resetRequestUpdated", fetchPendingResets); // ← AJOUTER
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("resetRequestUpdated", fetchPendingResets); // ← AJOUTER
+    };
   }, []);
 
   // Récupérer les infos utilisateur depuis localStorage

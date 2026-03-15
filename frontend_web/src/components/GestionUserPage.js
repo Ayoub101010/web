@@ -189,6 +189,7 @@ const GestionUserPage = () => {
       );
       if (response.ok) {
         loadResetRequests();
+        window.dispatchEvent(new Event("resetRequestUpdated"));
       }
     } catch (error) {
       console.error("Erreur:", error);
