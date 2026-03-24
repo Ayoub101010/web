@@ -235,7 +235,10 @@ const SuperAdminPage = () => {
           )}
           <div
             className={`nav-item ${currentView === "activity-log" ? "active" : ""}`}
-            onClick={() => setCurrentView("activity-log")}
+            onClick={() => {
+              setCurrentView("activity-log");
+              window.dispatchEvent(new Event("refreshActivityLog"));
+            }}
           >
             <i className="fas fa-clipboard-list"></i>
             <span>Journal</span>

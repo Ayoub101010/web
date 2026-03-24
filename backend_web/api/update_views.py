@@ -78,33 +78,41 @@ class InfrastructureUpdateAPIView(APIView):
         # ===== CAPTURER LES ANCIENNES VALEURS AVANT MODIFICATION =====
         import json
         old_values = {}
-        for field in model._meta.get_fields():
-            if getattr(field, 'concrete', False) and not field.auto_created:
-                fname = field.name
-                if fname in ('fid', 'id', 'geom'):
-                    continue
-                try:
-                    val = getattr(obj, fname)
-                    if hasattr(val, 'isoformat'):
-                        old_values[fname] = val.isoformat()
-                    elif hasattr(val, 'pk'):
-                        old_values[fname] = str(val)
-                    elif isinstance(val, (int, float, str, bool)) or val is None:
-                        old_values[fname] = val
-                    else:
-                        old_values[fname] = str(val)
-                except Exception:
-                    pass
-
-        # Aussi capturer le code_piste et la géographie
         code_piste_val = None
         region_nom_val = None
         prefecture_nom_val = None
         commune_nom_val = None
+
         try:
+            for field in model._meta.get_fields():
+                if getattr(field, 'concrete', False) and not field.auto_created:
+                    fname = field.name
+                    if fname in ('fid', 'id', 'geom'):
+                        continue
+                    try:
+                        # Pour les FK : prendre la valeur brute (_id) pas l'objet
+                        if field.is_relation:
+                            raw_val = getattr(obj, fname + '_id', None)
+                            old_values[fname] = raw_val
+                        else:
+                            val = getattr(obj, fname)
+                            if hasattr(val, 'isoformat'):
+                                old_values[fname] = val.isoformat()
+                            elif isinstance(val, (int, float, str, bool)) or val is None:
+                                old_values[fname] = val
+                            else:
+                                old_values[fname] = str(val)
+                    except Exception:
+                        pass
+
             cp = getattr(obj, 'code_piste', None)
             if cp:
-                code_piste_val = cp.code_piste if hasattr(cp, 'code_piste') else str(cp) if cp else None
+                if hasattr(cp, 'code_piste'):
+                    code_piste_val = cp.code_piste
+                elif isinstance(cp, str):
+                    code_piste_val = cp
+                else:
+                    code_piste_val = getattr(cp, 'pk', str(cp))
 
             commune_obj = getattr(obj, 'commune_id', None) or getattr(obj, 'communes_rurales_id', None)
             if commune_obj and hasattr(commune_obj, 'nom'):
@@ -113,8 +121,8 @@ class InfrastructureUpdateAPIView(APIView):
                     prefecture_nom_val = commune_obj.prefectures_id.nom
                     if hasattr(commune_obj.prefectures_id, 'regions_id') and commune_obj.prefectures_id.regions_id:
                         region_nom_val = commune_obj.prefectures_id.regions_id.nom
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"⚠️ Erreur capture old_values (non bloquante): {e}")
 
         data = dict(request.data or {})
         # Pour ppr_itial : original_type est un alias frontend du champ DB "type"
@@ -203,15 +211,17 @@ class InfrastructureUpdateAPIView(APIView):
             new_values = {}
             for key in updated.keys():
                 try:
-                    val = getattr(obj, key)
-                    if hasattr(val, 'isoformat'):
-                        new_values[key] = val.isoformat()
-                    elif hasattr(val, 'pk'):
-                        new_values[key] = str(val)
-                    elif isinstance(val, (int, float, str, bool)) or val is None:
-                        new_values[key] = val
+                    field = model._meta.get_field(key)
+                    if field.is_relation:
+                        new_values[key] = getattr(obj, key + '_id', None)
                     else:
-                        new_values[key] = str(val)
+                        val = getattr(obj, key)
+                        if hasattr(val, 'isoformat'):
+                            new_values[key] = val.isoformat()
+                        elif isinstance(val, (int, float, str, bool)) or val is None:
+                            new_values[key] = val
+                        else:
+                            new_values[key] = str(val)
                 except Exception:
                     new_values[key] = updated[key]
 

@@ -102,6 +102,13 @@ const ActivityLogPage = () => {
     loadActions();
   }, [loadActions]);
 
+  useEffect(() => {
+    const handleRefresh = () => loadActions();
+    window.addEventListener("refreshActivityLog", handleRefresh);
+    return () =>
+      window.removeEventListener("refreshActivityLog", handleRefresh);
+  }, [loadActions]);
+
   const getActionStyle = (type) => {
     return (
       ACTION_TYPES.find((a) => a.id === type) || {
@@ -234,7 +241,17 @@ const ActivityLogPage = () => {
           </thead>
           <tbody>
             {allFields.map((field) => {
-              if (["fid", "id", "geom", "sqlite_id"].includes(field))
+              if (
+                [
+                  "fid",
+                  "id",
+                  "geom",
+                  "sqlite_id",
+                  "login_id",
+                  "commune_id",
+                  "communes_rurales_id",
+                ].includes(field)
+              )
                 return null;
 
               const oldVal = oldVals[field];
@@ -301,6 +318,21 @@ const ActivityLogPage = () => {
               {totalItems} données
             </span>
           </div>
+          {action.region_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Région :</strong> <span>{action.region_nom}</span>
+            </div>
+          )}
+          {action.prefecture_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Préfecture :</strong> <span>{action.prefecture_nom}</span>
+            </div>
+          )}
+          {action.commune_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Commune :</strong> <span>{action.commune_nom}</span>
+            </div>
+          )}
         </div>
 
         {/* Badges résumé */}
