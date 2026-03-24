@@ -1,39 +1,40 @@
 import React, { useState, useEffect, useCallback } from "react";
 import authService from "./authService";
 import "./ActivityLogPage.css";
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 const ACTION_TYPES = [
-  { id: "create", label: "Création", color: "#059669", bg: "#D1FAE5" },
+  {
+    id: "sync_upload",
+    label: "Synchronisation",
+    color: "#7C3AED",
+    bg: "#EDE9FE",
+  },
   { id: "update", label: "Modification", color: "#EA580C", bg: "#FFEDD5" },
-  { id: "delete", label: "Suppression", color: "#DC2626", bg: "#FEE2E2" },
   { id: "login", label: "Connexion", color: "#2563EB", bg: "#DBEAFE" },
   { id: "logout", label: "Déconnexion", color: "#6B7280", bg: "#F3F4F6" },
-  { id: "sync_upload", label: "Sync", color: "#7C3AED", bg: "#EDE9FE" },
 ];
 
-const TABLE_NAMES = [
-  "pistes",
-  "chaussees",
-  "buses",
-  "dalots",
-  "ponts",
-  "passages_submersibles",
-  "bacs",
-  "ecoles",
-  "marches",
-  "services_santes",
-  "batiments_administratifs",
-  "infrastructures_hydrauliques",
-  "localites",
-  "autres_infrastructures",
-  "points_coupures",
-  "points_critiques",
-  "site_enquete",
-  "enquete_polygone",
-];
+const TABLE_FR = {
+  pistes: "Pistes",
+  chaussees: "Chaussées",
+  buses: "Buses",
+  dalots: "Dalots",
+  ponts: "Ponts",
+  passages_submersibles: "Passages submersibles",
+  bacs: "Bacs",
+  ecoles: "Écoles",
+  marches: "Marchés",
+  services_santes: "Services de santé",
+  batiments_administratifs: "Bâtiments administratifs",
+  infrastructures_hydrauliques: "Infrastructures hydrauliques",
+  localites: "Localités",
+  autres_infrastructures: "Autres infrastructures",
+  points_coupures: "Points de coupures",
+  points_critiques: "Points critiques",
+  site_enquete: "Sites d'enquête",
+  enquete_polygone: "Zones d'enquête",
+  login: "Utilisateurs",
+};
 
 const ActivityLogPage = () => {
   const [actions, setActions] = useState([]);
@@ -43,14 +44,15 @@ const ActivityLogPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [users, setUsers] = useState([]);
-  const [exporting, setExporting] = useState(false);
 
   // Filtres
   const [filterUser, setFilterUser] = useState("");
   const [filterAction, setFilterAction] = useState("");
-  const [filterTable, setFilterTable] = useState("");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
+
+  // Modal
+  const [selectedAction, setSelectedAction] = useState(null);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -73,7 +75,6 @@ const ActivityLogPage = () => {
       params.append("per_page", "20");
       if (filterUser) params.append("login_id", filterUser);
       if (filterAction) params.append("action_type", filterAction);
-      if (filterTable) params.append("table_name", filterTable);
       if (filterDateFrom) params.append("date_from", filterDateFrom);
       if (filterDateTo) params.append("date_to", filterDateTo);
 
@@ -92,26 +93,23 @@ const ActivityLogPage = () => {
       console.error("Erreur chargement historique:", e);
     }
     setLoading(false);
-  }, [
-    page,
-    filterUser,
-    filterAction,
-    filterTable,
-    filterDateFrom,
-    filterDateTo,
-  ]);
+  }, [page, filterUser, filterAction, filterDateFrom, filterDateTo]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
-
   useEffect(() => {
     loadActions();
   }, [loadActions]);
 
   const getActionStyle = (type) => {
-    const found = ACTION_TYPES.find((a) => a.id === type);
-    return found || { label: type, color: "#6B7280", bg: "#F3F4F6" };
+    return (
+      ACTION_TYPES.find((a) => a.id === type) || {
+        label: type,
+        color: "#6B7280",
+        bg: "#F3F4F6",
+      }
+    );
   };
 
   const formatDate = (dateStr) => {
@@ -126,366 +124,248 @@ const ActivityLogPage = () => {
     });
   };
 
-  const formatTableName = (name) => {
-    if (!name) return "—";
-    return name.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-  };
+  const formatTableName = (name) => TABLE_FR[name] || name || "—";
 
   const handleResetFilters = () => {
     setFilterUser("");
     setFilterAction("");
-    setFilterTable("");
     setFilterDateFrom("");
     setFilterDateTo("");
     setPage(1);
   };
 
-  // ===== GÉNÉRATION DU TITRE + SOUS-TITRE D'EXPORT =====
-  const getExportTitleParts = () => {
-    const selectedUser = users.find((u) => String(u.id) === String(filterUser));
-
-    // Titre principal
-    let title = "Journal d'activités";
-    if (selectedUser) {
-      title = `Journal d'activités par l'agent ${selectedUser.prenom} ${selectedUser.nom}`;
+  // ===== PARSER LES DETAILS JSON =====
+  const parseJSON = (str) => {
+    if (!str) return null;
+    try {
+      return JSON.parse(str);
+    } catch {
+      return null;
     }
-
-    // Sous-titre : actions sélectionnées
-    const actionLabels = {
-      create: "Création de données",
-      update: "Modification de données",
-      delete: "Suppression de données",
-      login: "Connexions",
-      logout: "Déconnexions",
-      sync_upload: "Synchronisation de données",
-    };
-
-    let subtitle = "";
-    if (filterAction) {
-      let label = actionLabels[filterAction] || filterAction;
-      if (filterTable) {
-        const tableFr = formatTableName(filterTable);
-        // "Création de données" → "Création des Pistes"
-        label = label.replace("de données", `des ${tableFr}`);
-        label = label.replace("Connexions", `Connexions`);
-        label = label.replace("Déconnexions", `Déconnexions`);
-      }
-      subtitle = label;
-    } else if (filterTable) {
-      subtitle = `Données : ${formatTableName(filterTable)}`;
-    }
-
-    // Période
-    let period = "";
-    if (filterDateFrom && filterDateTo) {
-      period = `Du ${filterDateFrom} au ${filterDateTo}`;
-    } else if (filterDateFrom) {
-      period = `À partir du ${filterDateFrom}`;
-    } else if (filterDateTo) {
-      period = `Jusqu'au ${filterDateTo}`;
-    }
-
-    return { title, subtitle, period };
   };
 
-  // ===== Pour le nom de fichier =====
-  const getExportTitle = () => {
-    const parts = getExportTitleParts();
-    return [parts.title, parts.subtitle, parts.period]
-      .filter(Boolean)
-      .join(" — ");
-  };
+  // ===== RENDU DES DÉTAILS PAR TYPE =====
+  const renderDetailsCell = (action) => {
+    const type = action.action_type;
 
-  // ===== CHARGER TOUTES LES DONNÉES FILTRÉES (sans pagination) =====
-  const fetchAllFiltered = async () => {
-    const headers = authService.getAuthHeader();
-    const params = new URLSearchParams();
-    params.append("page", "1");
-    params.append("per_page", "10000");
-    if (filterUser) params.append("login_id", filterUser);
-    if (filterAction) params.append("action_type", filterAction);
-    if (filterTable) params.append("table_name", filterTable);
-    if (filterDateFrom) params.append("date_from", filterDateFrom);
-    if (filterDateTo) params.append("date_to", filterDateTo);
+    if (type === "login") {
+      const details = parseJSON(action.details);
+      const mode = details?.mode === "offline" ? "hors-ligne" : "en ligne";
+      return (
+        <span style={{ color: "#2563EB", fontSize: "0.82rem" }}>
+          Connexion {mode}
+        </span>
+      );
+    }
 
-    const res = await fetch(
-      `http://localhost:8000/api/action-history/?${params.toString()}`,
-      { headers },
+    if (type === "logout") {
+      return (
+        <span style={{ color: "#6B7280", fontSize: "0.82rem" }}>
+          Déconnexion
+        </span>
+      );
+    }
+
+    // Sync ou Modification → bouton "Voir les détails"
+    return (
+      <button
+        className="activity-detail-btn"
+        onClick={() => setSelectedAction(action)}
+      >
+        📋 Voir les détails
+      </button>
     );
-    if (res.ok) {
-      const data = await res.json();
-      return data.results || [];
-    }
-    return [];
   };
 
-  // ===== EXPORT EXCEL =====
-  const handleExportExcel = async () => {
-    setExporting(true);
-    try {
-      const allData = await fetchAllFiltered();
-      const title = getExportTitle();
-      const selectedUser = users.find(
-        (u) => String(u.id) === String(filterUser),
-      );
+  // ===== MODAL MODIFICATION =====
+  const renderModificationModal = (action) => {
+    const oldVals = parseJSON(action.old_values) || {};
+    const newVals = parseJSON(action.new_values) || {};
+    const changedFields = parseJSON(action.details) || Object.keys(newVals);
 
-      const wb = XLSX.utils.book_new();
-      const wsData = [];
+    // Trouver les champs qui ont vraiment changé
+    const allFields = Object.keys(oldVals);
 
-      // En-tête titre
-      wsData.push([title]);
-      wsData.push([
-        `Exporté le ${new Date().toLocaleString("fr-FR")} — ${allData.length} actions`,
-      ]);
-      wsData.push([]);
+    return (
+      <>
+        <div className="activity-modal-info">
+          <div className="activity-modal-info-item">
+            <strong>Table :</strong>{" "}
+            <span>{formatTableName(action.table_name)}</span>
+          </div>
+          {action.code_piste && (
+            <div className="activity-modal-info-item">
+              <strong>Code Piste :</strong> <span>{action.code_piste}</span>
+            </div>
+          )}
+          {action.region_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Région :</strong> <span>{action.region_nom}</span>
+            </div>
+          )}
+          {action.prefecture_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Préfecture :</strong> <span>{action.prefecture_nom}</span>
+            </div>
+          )}
+          {action.commune_nom && (
+            <div className="activity-modal-info-item">
+              <strong>Commune :</strong> <span>{action.commune_nom}</span>
+            </div>
+          )}
+          <div className="activity-modal-info-item">
+            <strong>Modifié par :</strong>
+            <span>
+              {action.user_prenom} {action.user_nom} ({action.user_role})
+            </span>
+          </div>
+          <div className="activity-modal-info-item">
+            <strong>Date :</strong> <span>{formatDate(action.created_at)}</span>
+          </div>
+        </div>
 
-      // Stats résumé (du filtre actif, pas global)
-      // Stats résumé (seulement les types présents)
-      const countByType = (type) =>
-        allData.filter((a) => a.action_type === type).length;
-      const allStats = [
-        ["Créations", countByType("create")],
-        ["Modifications", countByType("update")],
-        ["Suppressions", countByType("delete")],
-        ["Synchronisations", countByType("sync_upload")],
-        ["Connexions", countByType("login")],
-        ["Déconnexions", countByType("logout")],
-      ].filter(([_, count]) => count > 0);
+        <table className="activity-diff-table">
+          <thead>
+            <tr>
+              <th>Champ</th>
+              <th>Ancienne valeur</th>
+              <th>Nouvelle valeur</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allFields.map((field) => {
+              if (["fid", "id", "geom", "sqlite_id"].includes(field))
+                return null;
 
-      wsData.push(["Résumé"]);
-      allStats.forEach((row) => wsData.push(row));
-      wsData.push(["Total", allData.length]);
-      wsData.push([]);
+              const oldVal = oldVals[field];
+              const newVal = newVals[field];
+              const isChanged =
+                changedFields.includes(field) &&
+                String(oldVal ?? "") !== String(newVal ?? "");
 
-      // En-tête tableau
-      wsData.push([
-        "Date / Heure",
-        "Agent",
-        "Rôle",
-        "Action",
-        "Table",
-        "Détails",
-        "Source",
-      ]);
-
-      // Données
-      allData.forEach((a) => {
-        wsData.push([
-          formatDate(a.created_at),
-          `${a.user_prenom || ""} ${a.user_nom || ""}`.trim(),
-          a.user_role || "—",
-          getActionStyle(a.action_type).label,
-          formatTableName(a.table_name),
-          a.record_label || "—",
-          a.source || "—",
-        ]);
-      });
-
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      // Largeur colonnes
-      ws["!cols"] = [
-        { wch: 22 },
-        { wch: 20 },
-        { wch: 14 },
-        { wch: 16 },
-        { wch: 22 },
-        { wch: 40 },
-        { wch: 10 },
-      ];
-
-      // Fusionner le titre sur toute la largeur
-      ws["!merges"] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
-      ];
-
-      XLSX.utils.book_append_sheet(wb, ws, "Journal");
-
-      const filename = `journal-activite-${selectedUser ? selectedUser.nom : "complet"}-${new Date().toISOString().split("T")[0]}.xlsx`;
-      XLSX.writeFile(wb, filename);
-    } catch (e) {
-      console.error("Erreur export Excel:", e);
-      alert("Erreur lors de l'export Excel");
-    }
-    setExporting(false);
+              return (
+                <tr key={field}>
+                  <td style={{ fontWeight: 500, color: "#334155" }}>
+                    {field
+                      .replace(/_/g, " ")
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
+                  </td>
+                  <td
+                    className={
+                      isChanged
+                        ? "activity-diff-old"
+                        : "activity-diff-unchanged"
+                    }
+                  >
+                    {oldVal != null ? String(oldVal) : "—"}
+                  </td>
+                  <td
+                    className={
+                      isChanged
+                        ? "activity-diff-new"
+                        : "activity-diff-unchanged"
+                    }
+                  >
+                    {newVal != null ? String(newVal) : "—"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </>
+    );
   };
 
-  const handleExportPDF = async () => {
-    setExporting(true);
-    try {
-      const allData = await fetchAllFiltered();
-      const { title, subtitle, period } = getExportTitleParts();
-      const countByType = (type) =>
-        allData.filter((a) => a.action_type === type).length;
+  // ===== MODAL SYNCHRONISATION =====
+  const renderSyncModal = (action) => {
+    const details = parseJSON(action.details) || {};
+    const summary = details.sync_summary || {};
+    const totalItems = details.total_items || 0;
 
-      const doc = new jsPDF({ orientation: "landscape" });
-      const pageWidth = doc.internal.pageSize.width;
+    return (
+      <>
+        <div className="activity-modal-info">
+          <div className="activity-modal-info-item">
+            <strong>Agent :</strong>
+            <span>
+              {action.user_prenom} {action.user_nom} ({action.user_role})
+            </span>
+          </div>
+          <div className="activity-modal-info-item">
+            <strong>Date :</strong> <span>{formatDate(action.created_at)}</span>
+          </div>
+          <div className="activity-modal-info-item">
+            <strong>Total synchronisé :</strong>
+            <span style={{ fontWeight: 700, color: "#7C3AED" }}>
+              {totalItems} données
+            </span>
+          </div>
+        </div>
 
-      // ===== EN-TÊTE CENTRÉ =====
-      // Titre principal
-      doc.setFontSize(18);
-      doc.setTextColor(30, 60, 114);
-      doc.text(title, pageWidth / 2, 20, { align: "center" });
+        {/* Badges résumé */}
+        <div className="activity-sync-summary">
+          {Object.entries(summary).map(([table, count]) => (
+            <span key={table} className="activity-sync-badge">
+              {count} {formatTableName(table)}
+            </span>
+          ))}
+        </div>
 
-      // Sous-titre (actions)
-      let yPos = 28;
-      if (subtitle) {
-        doc.setFontSize(12);
-        doc.setTextColor(80, 80, 80);
-        doc.text(subtitle, pageWidth / 2, yPos, { align: "center" });
-        yPos += 7;
-      }
+        {Object.keys(summary).length === 0 && (
+          <p style={{ color: "#64748b", textAlign: "center", padding: "1rem" }}>
+            Aucun détail de synchronisation disponible
+          </p>
+        )}
+      </>
+    );
+  };
 
-      // Période
-      if (period) {
-        doc.setFontSize(9);
-        doc.setTextColor(120, 120, 120);
-        doc.text(period, pageWidth / 2, yPos, { align: "center" });
-        yPos += 6;
-      }
+  // ===== MODAL PRINCIPAL =====
+  const renderModal = () => {
+    if (!selectedAction) return null;
 
-      // Stats (seulement les non-zéro)
-      const allStatsArr = [
-        ["Créations", countByType("create")],
-        ["Modifications", countByType("update")],
-        ["Suppressions", countByType("delete")],
-        ["Synchronisations", countByType("sync_upload")],
-        ["Connexions", countByType("login")],
-      ].filter(([_, count]) => count > 0);
+    const type = selectedAction.action_type;
+    const style = getActionStyle(type);
 
-      if (allStatsArr.length > 0) {
-        doc.setFontSize(8);
-        doc.setTextColor(100, 116, 139);
-        const statsText = allStatsArr
-          .map(([label, count]) => `${label}: ${count}`)
-          .join("  |  ");
-        doc.text(statsText, pageWidth / 2, yPos, { align: "center" });
-        yPos += 4;
-      }
+    let modalTitle = "Détails de l'action";
+    if (type === "update") modalTitle = "Détails de la modification";
+    if (type === "sync_upload") modalTitle = "Détails de la synchronisation";
 
-      // Info export
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text(
-        `${allData.length} entrées  •  Exporté le ${new Date().toLocaleString("fr-FR")}`,
-        pageWidth / 2,
-        yPos + 3,
-        { align: "center" },
-      );
-      yPos += 6;
-
-      // Ligne de séparation
-      doc.setDrawColor(30, 60, 114);
-      doc.setLineWidth(0.5);
-      doc.line(14, yPos, pageWidth - 14, yPos);
-
-      // ===== TABLEAU =====
-
-      const refLabel =
-        filterTable === "pistes"
-          ? "Code Piste"
-          : filterTable === "chaussees"
-            ? "Code Chaussée"
-            : "Référence";
-
-      const tableRows = allData.map((a) => [
-        formatDate(a.created_at),
-        `${a.user_prenom || ""} ${a.user_nom || ""}`.trim(),
-        a.region_nom || "—",
-        a.prefecture_nom || "—",
-        a.commune_nom || "—",
-        getActionStyle(a.action_type).label,
-        formatTableName(a.table_name),
-        a.record_label || "—",
-      ]);
-
-      autoTable(doc, {
-        startY: yPos + 4,
-        head: [
-          [
-            "Date / Heure",
-            "Agent",
-            "Région",
-            "Préfecture",
-            "Commune",
-            "Action",
-            "Table",
-            refLabel,
-          ],
-        ],
-        body: tableRows,
-        styles: { fontSize: 7, cellPadding: 2.5 },
-        headStyles: {
-          fillColor: [30, 60, 114],
-          textColor: 255,
-          fontStyle: "bold",
-          fontSize: 7.5,
-        },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        columnStyles: {
-          0: { cellWidth: 34 },
-          1: { cellWidth: 30 },
-          2: { cellWidth: 28 },
-          3: { cellWidth: 28 },
-          4: { cellWidth: 28 },
-          5: { cellWidth: 24 },
-          6: { cellWidth: 24 },
-          7: { cellWidth: 46 },
-        },
-        didParseCell: function (data) {
-          if (data.section === "body" && data.column.index === 5) {
-            const val = data.cell.raw;
-            if (val === "Création") {
-              data.cell.styles.textColor = [5, 150, 105];
-              data.cell.styles.fontStyle = "bold";
-            }
-            if (val === "Modification") {
-              data.cell.styles.textColor = [234, 88, 12];
-              data.cell.styles.fontStyle = "bold";
-            }
-            if (val === "Suppression") {
-              data.cell.styles.textColor = [220, 38, 38];
-              data.cell.styles.fontStyle = "bold";
-            }
-            if (val === "Connexion") {
-              data.cell.styles.textColor = [37, 99, 235];
-              data.cell.styles.fontStyle = "bold";
-            }
-            if (val === "Sync") {
-              data.cell.styles.textColor = [124, 58, 237];
-              data.cell.styles.fontStyle = "bold";
-            }
-          }
-        },
-      });
-
-      // Pied de page
-      const pageCount = doc.internal.getNumberOfPages();
-      const footerText = subtitle
-        ? `GeoDNGR — ${title} — ${subtitle}`
-        : `GeoDNGR — ${title}`;
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(7);
-        doc.setTextColor(150);
-        doc.text(
-          `${footerText} — Page ${i}/${pageCount}`,
-          14,
-          doc.internal.pageSize.height - 8,
-        );
-      }
-
-      const selectedUser = users.find(
-        (u) => String(u.id) === String(filterUser),
-      );
-      const filename = `journal-activite-${selectedUser ? selectedUser.nom : "complet"}-${new Date().toISOString().split("T")[0]}.pdf`;
-      doc.save(filename);
-    } catch (e) {
-      console.error("Erreur export PDF:", e);
-      alert("Erreur lors de l'export PDF : " + e.message);
-    }
-    setExporting(false);
+    return (
+      <div
+        className="activity-modal-overlay"
+        onClick={() => setSelectedAction(null)}
+      >
+        <div className="activity-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="activity-modal-header">
+            <h3>
+              <span
+                className="activity-badge"
+                style={{
+                  background: style.bg,
+                  color: style.color,
+                  marginRight: "8px",
+                }}
+              >
+                {style.label.toUpperCase()}
+              </span>
+              {modalTitle}
+            </h3>
+            <button
+              className="activity-modal-close"
+              onClick={() => setSelectedAction(null)}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="activity-modal-body">
+            {type === "update" && renderModificationModal(selectedAction)}
+            {type === "sync_upload" && renderSyncModal(selectedAction)}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -499,23 +379,14 @@ const ActivityLogPage = () => {
         </p>
       </div>
 
-      {/* Stats — 6 cartes */}
-      <div className="activity-log-stats">
-        <div className="activity-stat-card">
-          <div className="activity-stat-value">{stats.total_today || 0}</div>
-          <div className="activity-stat-label">Aujourd'hui</div>
-        </div>
-        <div className="activity-stat-card green">
-          <div className="activity-stat-value">{stats.creates_today || 0}</div>
-          <div className="activity-stat-label">Créations</div>
-        </div>
+      {/* Stats — 3 cartes */}
+      <div
+        className="activity-log-stats"
+        style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
+      >
         <div className="activity-stat-card orange">
           <div className="activity-stat-value">{stats.updates_today || 0}</div>
           <div className="activity-stat-label">Modifications</div>
-        </div>
-        <div className="activity-stat-card red">
-          <div className="activity-stat-value">{stats.deletes_today || 0}</div>
-          <div className="activity-stat-label">Suppressions</div>
         </div>
         <div className="activity-stat-card purple">
           <div className="activity-stat-value">{stats.syncs_today || 0}</div>
@@ -565,22 +436,6 @@ const ActivityLogPage = () => {
           ))}
         </div>
 
-        <select
-          value={filterTable}
-          onChange={(e) => {
-            setFilterTable(e.target.value);
-            setPage(1);
-          }}
-          className="activity-filter-select"
-        >
-          <option value="">Toutes les tables</option>
-          {TABLE_NAMES.map((t) => (
-            <option key={t} value={t}>
-              {formatTableName(t)}
-            </option>
-          ))}
-        </select>
-
         <input
           type="date"
           value={filterDateFrom}
@@ -603,24 +458,6 @@ const ActivityLogPage = () => {
         <button onClick={handleResetFilters} className="activity-reset-btn">
           Réinitialiser
         </button>
-
-        {/* Boutons Export */}
-        <div className="activity-export-buttons">
-          <button
-            onClick={handleExportExcel}
-            disabled={exporting}
-            className="activity-export-btn excel"
-          >
-            📊 Excel
-          </button>
-          <button
-            onClick={handleExportPDF}
-            disabled={exporting}
-            className="activity-export-btn pdf"
-          >
-            📄 PDF
-          </button>
-        </div>
       </div>
 
       {/* Tableau */}
@@ -633,10 +470,9 @@ const ActivityLogPage = () => {
               <tr>
                 <th>Date / Heure</th>
                 <th>Agent</th>
+                <th>Rôle</th>
                 <th>Action</th>
-                <th>Table</th>
                 <th>Détails</th>
-                <th>Source</th>
               </tr>
             </thead>
             <tbody>
@@ -650,6 +486,9 @@ const ActivityLogPage = () => {
                     <td className="activity-user">
                       {action.user_prenom} {action.user_nom}
                     </td>
+                    <td style={{ fontSize: "0.82rem", color: "#64748b" }}>
+                      {action.user_role || "—"}
+                    </td>
                     <td>
                       <span
                         className="activity-badge"
@@ -658,23 +497,14 @@ const ActivityLogPage = () => {
                         {style.label.toUpperCase()}
                       </span>
                     </td>
-                    <td>{formatTableName(action.table_name)}</td>
-                    <td className="activity-details">
-                      {action.record_label || "—"}
-                    </td>
-                    <td>
-                      <span className={`activity-source ${action.source}`}>
-                        {action.source === "mobile" ? "📱" : "🖥️"}{" "}
-                        {action.source}
-                      </span>
-                    </td>
+                    <td>{renderDetailsCell(action)}</td>
                   </tr>
                 );
               })}
               {actions.length === 0 && (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="5"
                     style={{
                       textAlign: "center",
                       padding: "2rem",
@@ -712,6 +542,9 @@ const ActivityLogPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal */}
+      {renderModal()}
     </div>
   );
 };

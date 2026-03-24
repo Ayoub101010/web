@@ -1240,20 +1240,22 @@ class PasswordResetRequest(models.Model):
         managed = False
 
 class ActionHistory(models.Model):
-    """Historique des actions (lecture côté web + écriture web)"""
     login = models.ForeignKey(
-        Login,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        db_column='login_id',
-        related_name='action_history',
+        Login, on_delete=models.SET_NULL, null=True, blank=True,
+        db_column='login_id', related_name='action_history',
     )
     action_type = models.TextField()
     table_name = models.TextField(null=True, blank=True)
     record_id = models.BigIntegerField(null=True, blank=True)
     record_label = models.TextField(null=True, blank=True)
     details = models.TextField(null=True, blank=True)
+    old_values = models.TextField(null=True, blank=True)
+    new_values = models.TextField(null=True, blank=True)
+    sync_summary = models.TextField(null=True, blank=True)
+    code_piste = models.TextField(null=True, blank=True)
+    region_nom = models.TextField(null=True, blank=True)
+    prefecture_nom = models.TextField(null=True, blank=True)
+    commune_nom = models.TextField(null=True, blank=True)
     source = models.TextField(default='web')
     synced_from_mobile = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

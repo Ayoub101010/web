@@ -992,11 +992,9 @@ class ActionHistoryAPIView(APIView):
             created_at__date=today
         ).aggregate(
             total_today=Count('id'),
-            creates_today=Count('id', filter=models.Q(action_type='create')),
             updates_today=Count('id', filter=models.Q(action_type='update')),
-            deletes_today=Count('id', filter=models.Q(action_type='delete')),
-            logins_today=Count('id', filter=models.Q(action_type='login')),
             syncs_today=Count('id', filter=models.Q(action_type='sync_upload')),
+            logins_today=Count('id', filter=models.Q(action_type='login')),
         )
 
         return Response({
