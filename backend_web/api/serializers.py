@@ -88,6 +88,53 @@ class LoginSerializer(serializers.ModelSerializer):
     def get_is_admin(self, obj):
         """Check if user is admin"""
         return obj.is_admin()
+    
+
+#Suivi les actions
+class ActionHistorySerializer(serializers.ModelSerializer):
+    user_nom = serializers.CharField(source='login.nom', read_only=True, default='')
+    user_prenom = serializers.CharField(source='login.prenom', read_only=True, default='')
+    user_role = serializers.CharField(source='login.role', read_only=True, default='')
+    region_nom = serializers.SerializerMethodField()
+    prefecture_nom = serializers.SerializerMethodField()
+    commune_nom = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActionHistory
+        fields = [
+            'id', 'login', 'user_nom', 'user_prenom', 'user_role',
+            'region_nom', 'prefecture_nom', 'commune_nom',
+            'action_type', 'table_name', 'record_id', 'record_label',
+            'details', 'source', 'synced_from_mobile', 'created_at',
+        ]
+
+    def get_region_nom(self, obj):
+        try:
+            if obj.login and obj.login.communes_rurales_id:
+                pref = obj.login.communes_rurales_id.prefectures_id
+                if pref and pref.regions_id:
+                    return pref.regions_id.nom
+        except Exception:
+            pass
+        return ''
+
+    def get_prefecture_nom(self, obj):
+        try:
+            if obj.login and obj.login.communes_rurales_id:
+                pref = obj.login.communes_rurales_id.prefectures_id
+                if pref:
+                    return pref.nom
+        except Exception:
+            pass
+        return ''
+
+    def get_commune_nom(self, obj):
+        try:
+            if obj.login and obj.login.communes_rurales_id:
+                return obj.login.communes_rurales_id.nom
+        except Exception:
+            pass
+        return ''
 
 # Serializers pour les demandes de mdps 
 class PasswordResetRequestSerializer(serializers.ModelSerializer):

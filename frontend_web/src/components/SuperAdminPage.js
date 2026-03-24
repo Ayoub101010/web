@@ -15,6 +15,7 @@ import DataTrackingPage from "./DataTrackingPage";
 import CartographiePage from "./CartographiePage";
 import { useIsMobile } from "../hooks/useIsMobile";
 import authService from "./authService";
+import ActivityLogPage from "./ActivityLogPage";
 
 const SuperAdminPage = () => {
   const [currentView, setCurrentView] = useState(
@@ -232,6 +233,13 @@ const SuperAdminPage = () => {
               <span>Données</span>
             </div>
           )}
+          <div
+            className={`nav-item ${currentView === "activity-log" ? "active" : ""}`}
+            onClick={() => setCurrentView("activity-log")}
+          >
+            <i className="fas fa-clipboard-list"></i>
+            <span>Journal</span>
+          </div>
           <div
             className={`nav-item ${currentView === "cartographie" ? "active" : ""}`}
             onClick={() => setCurrentView("cartographie")}
@@ -562,6 +570,13 @@ const SuperAdminPage = () => {
         style={{ display: currentView === "data-tracking" ? "block" : "none" }}
       >
         <DataTrackingPage />
+      </div>
+      {/* Vue Journal d'activité */}
+      <div
+        className="view-container"
+        style={{ display: currentView === "activity-log" ? "block" : "none" }}
+      >
+        <ActivityLogPage />
       </div>
       {/* Vue Cartographie */}
       <div

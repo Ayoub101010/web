@@ -1,0 +1,336 @@
+/* ===== JOURNAL D'ACTIVITÉ ===== */
+
+.activity-log-wrapper {
+  padding: 1.5rem;
+}
+
+.activity-log-header {
+  background: linear-gradient(135deg, #1e3c72, #2a77d1);
+  color: #fff;
+  padding: 2rem 1rem;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.activity-log-header-icon {
+  font-size: 2rem;
+  margin-bottom: 0.4rem;
+}
+.activity-log-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+.activity-log-subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* Stats — 6 cartes */
+.activity-log-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.activity-stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.8rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-bottom: 3px solid #e2e8f0;
+}
+.activity-stat-card.green {
+  border-bottom-color: #059669;
+}
+.activity-stat-card.orange {
+  border-bottom-color: #ea580c;
+}
+.activity-stat-card.red {
+  border-bottom-color: #dc2626;
+}
+.activity-stat-card.purple {
+  border-bottom-color: #7c3aed;
+}
+.activity-stat-card.blue {
+  border-bottom-color: #2563eb;
+}
+
+.activity-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+.activity-stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Filtres */
+.activity-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.activity-filter-select,
+.activity-filter-date {
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: #fff;
+  color: #334155;
+}
+
+.activity-filter-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.activity-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.activity-reset-btn {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+}
+.activity-reset-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Boutons Export */
+.activity-export-buttons {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.activity-export-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.activity-export-btn.excel {
+  background: #059669;
+  color: #fff;
+}
+.activity-export-btn.excel:hover {
+  background: #047857;
+}
+
+.activity-export-btn.pdf {
+  background: #dc2626;
+  color: #fff;
+}
+.activity-export-btn.pdf:hover {
+  background: #b91c1c;
+}
+
+.activity-export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tableau */
+.activity-table-container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.activity-table thead {
+  background: #1e3c72;
+  color: #fff;
+}
+
+.activity-table th {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.activity-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.activity-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.activity-date {
+  color: #64748b;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+.activity-user {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.activity-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.activity-details {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.activity-source {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Pagination */
+.activity-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.activity-pagination-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.activity-page-btn {
+  padding: 5px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+}
+.activity-page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.activity-page-btn:not(:disabled):hover {
+  background: #f1f5f9;
+}
+
+.activity-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 1024px) {
+  .activity-log-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .activity-log-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .activity-log-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .activity-filter-chips {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .activity-export-buttons {
+    margin-left: 0;
+    width: 100%;
+  }
+  .activity-export-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .activity-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .activity-log-wrapper {
+    padding: 0.75rem;
+  }
+  .activity-log-header {
+    padding: 1.25rem 0.75rem;
+    border-radius: 10px;
+  }
+  .activity-log-title {
+    font-size: 1.2rem;
+  }
+  .activity-log-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .activity-stat-value {
+    font-size: 1.2rem;
+  }
+  .activity-table th,
+  .activity-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.72rem;
+  }
+}

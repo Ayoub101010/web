@@ -1238,3 +1238,27 @@ class PasswordResetRequest(models.Model):
     class Meta:
         db_table = 'password_reset_requests'
         managed = False
+
+class ActionHistory(models.Model):
+    """Historique des actions (lecture côté web + écriture web)"""
+    login = models.ForeignKey(
+        Login,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='login_id',
+        related_name='action_history',
+    )
+    action_type = models.TextField()
+    table_name = models.TextField(null=True, blank=True)
+    record_id = models.BigIntegerField(null=True, blank=True)
+    record_label = models.TextField(null=True, blank=True)
+    details = models.TextField(null=True, blank=True)
+    source = models.TextField(default='web')
+    synced_from_mobile = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'action_history'
+        managed = False
+        ordering = ['-created_at']

@@ -77,4 +77,6 @@ urlpatterns = [
     ),
 
     path('api/password-reset-requests/', PasswordResetRequestsAPIView.as_view(), name='api-password-reset-requests'),
+
+    path('api/action-history/', ActionHistoryAPIView.as_view(), name='api-action-history'),
 ]

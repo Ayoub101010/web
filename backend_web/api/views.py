@@ -246,6 +246,16 @@ class LoginAPIView(APIView):
             'can_manage_users': user.is_admin(),  # Only admins
         }
         
+        # ===== LOG HISTORIQUE : Connexion web =====
+        try:
+            ActionHistory.objects.create(
+                login=user,
+                action_type='login',
+                source='web',
+            )
+        except Exception:
+            pass
+
         # IMPORTANT: Format attendu par le frontend
         # Les tokens sont directement dans la reponse, PAS dans un sous-objet
         return Response({
@@ -879,6 +889,31 @@ class InfrastructureUpdateAPIView(APIView):
 
         obj.save()
 
+        # ===== LOG HISTORIQUE WEB =====
+        try:
+            user_id = None
+            try:
+                from rest_framework_simplejwt.authentication import JWTAuthentication
+                auth = JWTAuthentication()
+                raw_token = auth.get_raw_token(auth.get_header(request))
+                validated = auth.get_validated_token(raw_token)
+                user_id = validated['user_id']
+            except Exception:
+                pass
+
+            import json
+            ActionHistory.objects.create(
+                login_id=user_id,
+                action_type='update',
+                table_name=table,
+                record_id=fid,
+                record_label=str(obj),
+                details=json.dumps(updated),
+                source='web',
+            )
+        except Exception as e:
+            print(f"⚠️ Erreur log action web: {e}")
+
         return Response(
             {
                 "success": True,
@@ -905,3 +940,70 @@ class PprItialListCreateAPIView(InfrastructureRBACMixin, generics.ListCreateAPIV
 
     def get_queryset(self):
         return super().get_queryset()
+
+
+class ActionHistoryAPIView(APIView):
+    """
+    GET : Lire l'historique des actions avec filtres et pagination.
+    """
+
+    def get(self, request):
+        qs = ActionHistory.objects.select_related(
+            'login',
+            'login__communes_rurales_id',
+            'login__communes_rurales_id__prefectures_id',
+            'login__communes_rurales_id__prefectures_id__regions_id',
+        ).all()
+
+        # Filtres
+        login_id = request.GET.get('login_id')
+        action_type = request.GET.get('action_type')
+        table_name = request.GET.get('table_name')
+        source = request.GET.get('source')
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+
+        if login_id:
+            qs = qs.filter(login_id=login_id)
+        if action_type:
+            qs = qs.filter(action_type=action_type)
+        if table_name:
+            qs = qs.filter(table_name=table_name)
+        if source:
+            qs = qs.filter(source=source)
+        if date_from:
+            qs = qs.filter(created_at__gte=date_from)
+        if date_to:
+            qs = qs.filter(created_at__lte=date_to + ' 23:59:59')
+
+        # Pagination simple
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 20))
+        total = qs.count()
+        offset = (page - 1) * per_page
+        actions = qs[offset:offset + per_page]
+
+        serializer = ActionHistorySerializer(actions, many=True)
+
+        # Stats rapides
+        from django.db.models import Count
+        today = timezone.now().date()
+        stats = ActionHistory.objects.filter(
+            created_at__date=today
+        ).aggregate(
+            total_today=Count('id'),
+            creates_today=Count('id', filter=models.Q(action_type='create')),
+            updates_today=Count('id', filter=models.Q(action_type='update')),
+            deletes_today=Count('id', filter=models.Q(action_type='delete')),
+            logins_today=Count('id', filter=models.Q(action_type='login')),
+            syncs_today=Count('id', filter=models.Q(action_type='sync_upload')),
+        )
+
+        return Response({
+            'results': serializer.data,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': (total + per_page - 1) // per_page,
+            'stats': stats,
+        }, status=status.HTTP_200_OK)
