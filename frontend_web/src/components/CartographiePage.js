@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import GeographicFilter from "./GeographicFilterWithZoom";
 import { generateCarte1, generateCarte2 } from "./CartographieGenerator";
+import dataservice from "./dataservice";
+import JSZip from "jszip";
 import "./CartographiePage.css";
 
 const CartographiePage = ({ filters: parentFilters }) => {
@@ -24,7 +26,7 @@ const CartographiePage = ({ filters: parentFilters }) => {
   const [hierarchy, setHierarchy] = useState([]);
 
   // ── État de génération ──
-  const [generating, setGenerating] = useState(null); // 'carte1' | 'carte2' | null
+  const [generating, setGenerating] = useState(null);
   const [progressMsg, setProgressMsg] = useState(null);
 
   // Charger la hiérarchie pour résoudre les noms
@@ -41,6 +43,7 @@ const CartographiePage = ({ filters: parentFilters }) => {
     };
     loadHierarchy();
   }, []);
+
 
   // Synchroniser les filtres parents quand ils changent
   useEffect(() => {
@@ -99,6 +102,7 @@ const CartographiePage = ({ filters: parentFilters }) => {
 
   // Vérifier si un filtre est sélectionné (au minimum une préfecture)
   const hasValidSelection = localFilters.prefecture_id.length > 0;
+  const isMultiPref = localFilters.prefecture_id.length > 1;
 
   // Génération de la Carte 1 : Pistes et ouvrages réalisés
   const handleGenerateCarte1 = async () => {
@@ -116,6 +120,66 @@ const CartographiePage = ({ filters: parentFilters }) => {
       setGenerating(null);
       setProgressMsg(null);
     }
+  };
+
+  // Génération batch : préfectures sélectionnées dans le filtre → ZIP avec sous-dossiers
+  const handleGenerateBatch = async () => {
+    if (localFilters.prefecture_id.length === 0) {
+      alert("Veuillez sélectionner au moins une préfecture dans le filtre.");
+      return;
+    }
+    setGenerating("batch");
+    const zip = new JSZip();
+    const prefIds = localFilters.prefecture_id;
+
+    // Charger les noms depuis le service géographique (fiable)
+    const prefNomById = {};
+    try {
+      const r = await dataservice.loadAdministrativeBoundaries(12, null, null);
+      if (r.success && r.data && r.data.features) {
+        r.data.features
+          .filter((f) => f.properties && f.properties.type === "prefecture")
+          .forEach((f) => {
+            const id = f.properties.id;
+            const nom = f.properties.nom || f.properties.nom_prefecture || "";
+            if (id && nom) prefNomById[id] = nom;
+          });
+      }
+    } catch (e) { console.error("Erreur noms préfectures:", e); }
+
+    for (let i = 0; i < prefIds.length; i++) {
+      const prefId = prefIds[i];
+      const prefNom = prefNomById[prefId] || prefNomById[String(prefId)] || prefNomById[Number(prefId)] || `Prefecture_${prefId}`;
+      const batchFilters = { prefecture_id: [prefId] };
+      const batchNames = { prefectures: [prefNom] };
+      const folder = zip.folder(prefNom);
+      try {
+        setProgressMsg(`[${i + 1}/${prefIds.length}] Carte 1 — ${prefNom}...`);
+        const r1 = await generateCarte1(batchFilters, batchNames,
+          (msg) => setProgressMsg(`${prefNom} : ${msg}`), true);
+        if (r1) folder.file(r1.filename, r1.blob);
+
+        setProgressMsg(`[${i + 1}/${prefIds.length}] Carte 2 — ${prefNom}...`);
+        const r2 = await generateCarte2(batchFilters, batchNames,
+          (msg) => setProgressMsg(`${prefNom} : ${msg}`), true);
+        if (r2) folder.file(r2.filename, r2.blob);
+      } catch (e) {
+        console.error(`Erreur préfecture ${prefNom}:`, e);
+      }
+    }
+
+    setProgressMsg("Compression du ZIP...");
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Cartes_PPR_" + new Date().toISOString().split("T")[0] + ".zip";
+    a.click();
+    URL.revokeObjectURL(url);
+
+    setGenerating(null);
+    setProgressMsg(null);
+    alert(`Génération terminée : ${prefIds.length} préfecture(s) — ZIP téléchargé.`);
   };
 
   // Génération de la Carte 2 : Zones de production
@@ -170,6 +234,7 @@ const CartographiePage = ({ filters: parentFilters }) => {
               onFiltersChange={handleFiltersChange}
               initialFilters={localFilters}
               showLabels={true}
+              showCommune={false}
             />
           </div>
 
@@ -259,15 +324,20 @@ const CartographiePage = ({ filters: parentFilters }) => {
                     </li>
                   </ul>
                 </div>
+                {isMultiPref && (
+                  <p style={{ color: "#c0392b", fontSize: "12px", margin: "8px 0 0" }}>
+                    <i className="fas fa-info-circle"></i> Plusieurs préfectures sélectionnées — utilisez le bouton ZIP ci-dessous.
+                  </p>
+                )}
                 <button
                   className="carto-card-btn carto-btn-pistes"
                   onClick={handleGenerateCarte1}
-                  disabled={generating !== null}
+                  disabled={generating !== null || isMultiPref}
+                  title={isMultiPref ? "Sélectionnez une seule préfecture pour générer une carte individuelle" : ""}
                 >
                   {generating === "carte1" ? (
                     <>
-                      <i className="fas fa-spinner fa-spin"></i> Génération en
-                      cours...
+                      <i className="fas fa-spinner fa-spin"></i> Génération en cours...
                     </>
                   ) : (
                     <>
@@ -308,12 +378,12 @@ const CartographiePage = ({ filters: parentFilters }) => {
                 <button
                   className="carto-card-btn carto-btn-zones"
                   onClick={handleGenerateCarte2}
-                  disabled={generating !== null}
+                  disabled={generating !== null || isMultiPref}
+                  title={isMultiPref ? "Sélectionnez une seule préfecture pour générer une carte individuelle" : ""}
                 >
                   {generating === "carte2" ? (
                     <>
-                      <i className="fas fa-spinner fa-spin"></i> Génération en
-                      cours...
+                      <i className="fas fa-spinner fa-spin"></i> Génération en cours...
                     </>
                   ) : (
                     <>
@@ -327,6 +397,35 @@ const CartographiePage = ({ filters: parentFilters }) => {
         </div>
       </div>
 
+      {/* ── Génération batch ── */}
+      {hasValidSelection && (
+        <div style={{
+          padding: "10px 16px", background: "#fff3cd", border: "1px solid #f0a500",
+          borderRadius: "8px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap",
+        }}>
+          <span style={{ fontWeight: "bold", color: "#856404", fontSize: "13px" }}>
+            Génération par lot
+          </span>
+          <span style={{ color: "#555", fontSize: "12px", flex: 1 }}>
+            Carte 1 + Carte 2 pour <strong>{resolvedNames.prefectures.join(", ")}</strong> → ZIP (sous-dossier par préfecture)
+          </span>
+          <button
+            onClick={handleGenerateBatch}
+            disabled={generating !== null}
+            style={{
+              padding: "6px 16px", background: generating === "batch" ? "#aaa" : "#e67e00",
+              color: "#fff", border: "none", borderRadius: "6px",
+              fontWeight: "bold", fontSize: "13px",
+              cursor: generating !== null ? "not-allowed" : "pointer", whiteSpace: "nowrap",
+            }}
+          >
+            {generating === "batch"
+              ? <><i className="fas fa-spinner fa-spin"></i> {progressMsg || "En cours..."}</>
+              : <><i className="fas fa-file-archive"></i> Générer le ZIP</>}
+          </button>
+        </div>
+      )}
+
       {/* ── Overlay de progression ── */}
       {generating && progressMsg && (
         <div className="carto-progress-overlay">
@@ -337,17 +436,6 @@ const CartographiePage = ({ filters: parentFilters }) => {
         </div>
       )}
 
-      {/* ── Pied de page info ── */}
-      <div className="carto-footer">
-        <div className="carto-footer-item">
-          <i className="fas fa-info-circle"></i>
-          <span>
-            Les cartes générées incluent : logo de la Guinée, titres officiels,
-            légende, plan de situation, tableau des pistes et éléments
-            cartographiques (échelle, flèche nord, graticule).
-          </span>
-        </div>
-      </div>
     </div>
   );
 };

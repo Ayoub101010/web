@@ -390,14 +390,117 @@ class UserManagementAPIView(APIView):
             return Response({"error": "ID utilisateur requis"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            user = Login.objects.get(id=user_id)
+            user = Login.objects.select_related(
+                'communes_rurales_id',
+                'communes_rurales_id__prefectures_id',
+                'communes_rurales_id__prefectures_id__regions_id',
+            ).get(id=user_id)
         except Login.DoesNotExist:
             return Response({"error": "Utilisateur non trouve"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # ===== CAPTURER TOUTES LES ANCIENNES VALEURS =====
+        import json
+        old_values = {
+            'nom': user.nom,
+            'prenom': user.prenom,
+            'mail': user.mail,
+            'role': user.role,
+            'is_active': user.is_active,
+            'commune': user.communes_rurales_id.nom if user.communes_rurales_id else None,
+            'prefecture': user.communes_rurales_id.prefectures_id.nom if user.communes_rurales_id and user.communes_rurales_id.prefectures_id else None,
+            'region': user.communes_rurales_id.prefectures_id.regions_id.nom if user.communes_rurales_id and user.communes_rurales_id.prefectures_id and user.communes_rurales_id.prefectures_id.regions_id else None,
+            'regions_assignees': list(
+                UserRegion.objects.filter(login=user)
+                .select_related('region')
+                .values_list('region__nom', flat=True)
+            ),
+            'prefectures_assignees': list(
+                UserPrefecture.objects.filter(login=user)
+                .select_related('prefecture')
+                .values_list('prefecture__nom', flat=True)
+            ),
+            'interfaces': list(
+                UserInterfacePermission.objects.filter(login=user)
+                .values_list('interface_name', flat=True)
+            ),
+        }
         
         serializer = UserUpdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             user.refresh_from_db()
+            
+            # ===== CAPTURER LES NOUVELLES VALEURS =====
+            try:
+                # Recharger les relations
+                user = Login.objects.select_related(
+                    'communes_rurales_id',
+                    'communes_rurales_id__prefectures_id',
+                    'communes_rurales_id__prefectures_id__regions_id',
+                ).get(id=user_id)
+
+                new_values = {
+                    'nom': user.nom,
+                    'prenom': user.prenom,
+                    'mail': user.mail,
+                    'role': user.role,
+                    'is_active': user.is_active,
+                    'commune': user.communes_rurales_id.nom if user.communes_rurales_id else None,
+                    'prefecture': user.communes_rurales_id.prefectures_id.nom if user.communes_rurales_id and user.communes_rurales_id.prefectures_id else None,
+                    'region': user.communes_rurales_id.prefectures_id.regions_id.nom if user.communes_rurales_id and user.communes_rurales_id.prefectures_id and user.communes_rurales_id.prefectures_id.regions_id else None,
+                    'regions_assignees': list(
+                        UserRegion.objects.filter(login=user)
+                        .select_related('region')
+                        .values_list('region__nom', flat=True)
+                    ),
+                    'prefectures_assignees': list(
+                        UserPrefecture.objects.filter(login=user)
+                        .select_related('prefecture')
+                        .values_list('prefecture__nom', flat=True)
+                    ),
+                    'interfaces': list(
+                        UserInterfacePermission.objects.filter(login=user)
+                        .values_list('interface_name', flat=True)
+                    ),
+                }
+                
+                # Trouver les champs modifiés
+                changed = []
+                for k in old_values:
+                    old_v = old_values[k]
+                    new_v = new_values[k]
+                    # Pour les listes, comparer triées
+                    if isinstance(old_v, list) and isinstance(new_v, list):
+                        if sorted(old_v) != sorted(new_v):
+                            changed.append(k)
+                    elif str(old_v) != str(new_v):
+                        changed.append(k)
+                
+                if changed:
+                    admin_id = None
+                    try:
+                        from rest_framework_simplejwt.authentication import JWTAuthentication
+                        auth = JWTAuthentication()
+                        raw_token = auth.get_raw_token(auth.get_header(request))
+                        validated = auth.get_validated_token(raw_token)
+                        admin_id = validated['user_id']
+                    except Exception:
+                        pass
+
+                    ActionHistory.objects.create(
+                        login_id=admin_id,
+                        action_type='update',
+                        table_name='login',
+                        record_id=user_id,
+                        record_label=f"{user.prenom} {user.nom}",
+                        details=json.dumps(changed),
+                        old_values=json.dumps(old_values),
+                        new_values=json.dumps(new_values),
+                        source='web',
+                    )
+            except Exception as e:
+                print(f"⚠️ Erreur log modif utilisateur: {e}")
+            
             response_serializer = LoginSerializer(user)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         else:

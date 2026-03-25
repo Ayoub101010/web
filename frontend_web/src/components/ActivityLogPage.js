@@ -183,7 +183,14 @@ const ActivityLogPage = () => {
       </button>
     );
   };
-
+  const formatFieldValue = (value) => {
+    if (value === null || value === undefined) return "—";
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value.join(", ") : "Aucun";
+    }
+    if (typeof value === "boolean") return value ? "Oui" : "Non";
+    return String(value);
+  };
   // ===== MODAL MODIFICATION =====
   const renderModificationModal = (action) => {
     const oldVals = parseJSON(action.old_values) || {};
@@ -274,7 +281,7 @@ const ActivityLogPage = () => {
                         : "activity-diff-unchanged"
                     }
                   >
-                    {oldVal != null ? String(oldVal) : "—"}
+                    {formatFieldValue(oldVal)}
                   </td>
                   <td
                     className={
@@ -283,7 +290,7 @@ const ActivityLogPage = () => {
                         : "activity-diff-unchanged"
                     }
                   >
-                    {newVal != null ? String(newVal) : "—"}
+                    {formatFieldValue(newVal)}
                   </td>
                 </tr>
               );
@@ -468,24 +475,30 @@ const ActivityLogPage = () => {
           ))}
         </div>
 
-        <input
-          type="date"
-          value={filterDateFrom}
-          onChange={(e) => {
-            setFilterDateFrom(e.target.value);
-            setPage(1);
-          }}
-          className="activity-filter-date"
-        />
-        <input
-          type="date"
-          value={filterDateTo}
-          onChange={(e) => {
-            setFilterDateTo(e.target.value);
-            setPage(1);
-          }}
-          className="activity-filter-date"
-        />
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Du</span>
+          <input
+            type="date"
+            value={filterDateFrom}
+            max={filterDateTo || undefined}
+            onChange={(e) => {
+              setFilterDateFrom(e.target.value);
+              setPage(1);
+            }}
+            className="activity-filter-date"
+          />
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Au</span>
+          <input
+            type="date"
+            value={filterDateTo}
+            min={filterDateFrom || undefined}
+            onChange={(e) => {
+              setFilterDateTo(e.target.value);
+              setPage(1);
+            }}
+            className="activity-filter-date"
+          />
+        </div>
 
         <button onClick={handleResetFilters} className="activity-reset-btn">
           Réinitialiser
